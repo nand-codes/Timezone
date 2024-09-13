@@ -1,0 +1,81 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card">
+        <h5 class="card-header">Product offers</h5>
+        <div class="table-responsive text-nowrap">
+            <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#addNewCCModal"> Add new </button>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>product</th>
+                        <th>Discount percetage</th>
+                        <th>Valid from</th>
+                        <th>Expiry date</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for i in product_offer %}
+                    <tr>
+                        <td>{{ i.product }}</td>
+                        <td>{{ i.discount_percentage }}%</td>
+                        <td>{{i.start_date.date}}</td>
+                        <td>{{i.end_date.date}}</td>
+                        <td><a href="{% url 'products:product_offer_delete' i.id %}">Delete</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add New Brand Modal -->
+    <div class="modal fade" id="addNewCCModal" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered1 modal-simple modal-add-new-cc">
+          <div class="modal-content">
+            <div class="modal-body p-0">
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <div class="text-center mb-6">
+                <h4 class="mb-2">Add Offer</h4>
+              </div>
+              <form method="post" id="addNewCCForm" class="row g-5 fv-plugins-bootstrap5 fv-plugins-framework"  >
+                {% csrf_token %}
+                <div class="col-12 fv-plugins-icon-container">
+                  <div class="input-group input-group-merge">
+                    <div class="form-floating form-floating">
+                        <select class="form-select rounded-pill border-0 shadow-sm" id="product" name="product" required="">
+                            <option value="">Select Product</option>
+                            {% for product in products %}
+                                <option value="{{ product.id }}">{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+                    <span class="input-group-text cursor-pointer p-1" id="modalAddCard2"><span class="card-type"></span></span>
+                  </div>
+                <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div></div>
+                <div class="col-12 col-md-6">
+                  <div class="form-floating form-floating-outline">
+                    <input type="number" id="modalAddCardName" name="discount" class="form-control" placeholder="Enter a positive number" min="0.1" step="0.1" required>
+                    <label for="modalAddCardName">Discount</label>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="form-floating form-floating-outline">
+                    <input type="text" id="modalAddCardExpiryDate" name="valid_to" class="form-control expiry-date-mask" placeholder="YYYY-MM-DD">
+                    <label for="modalAddCardExpiryDate">Expiry</label>
+                  </div>
+                </div>
+                <div class="col-12 text-center">
+                  <button type="submit" class="btn btn-primary me-3 waves-effect waves-light">Submit</button>
+                  <button type="reset" class="btn btn-outline-secondary btn-reset waves-effect" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                </div>
+            </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+{%endblock%}

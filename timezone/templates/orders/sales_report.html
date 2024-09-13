@@ -1,0 +1,207 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-danger">
+  {{message}}
+</div>
+{%endfor%}
+{%endif%}
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+  <div class="text-center mb-5">
+    <h1 class="display-4 fw-bold text-primary">Sales Report</h1>
+  </div>        
+            
+  <!-- Order List Widget -->
+ 
+  <div class="card mb-6">
+    <div class="card-widget-separator-wrapper">
+      <div class="card-body card-widget-separator">
+        <div class="row gy-4 gy-sm-1">
+          <div class="col-sm-6 col-lg-3">
+            <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-4 pb-sm-0">
+              <div>
+                <h4 class="mb-0">{{total_orders}}</h4>
+                <p class="mb-0">Total orders</p>
+              </div>
+              <div class="avatar me-sm-6">
+                <span class="avatar-initial rounded bg-label-secondary text-heading">
+                  <i class="ri-calendar-2-line ri-24px"></i>
+                </span>
+              </div>
+            </div>
+            <hr class="d-none d-sm-block d-lg-none me-6">
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-4 pb-sm-0">
+              <div>
+                <h4 class="mb-0">12,689</h4>
+                <p class="mb-0">Completed</p>
+              </div>
+              <div class="avatar me-lg-6">
+                <span class="avatar-initial rounded bg-label-secondary text-heading">
+                  <i class="ri-check-double-line ri-24px"></i>
+                </span>
+              </div>
+            </div>
+            <hr class="d-none d-sm-block d-lg-none">
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="d-flex justify-content-between align-items-start border-end pb-4 pb-sm-0 card-widget-3">
+              <div>
+                <h4 class="mb-0">124</h4>
+                <p class="mb-0">Refunded</p>
+              </div>
+              <div class="avatar me-sm-6">
+                <span class="avatar-initial rounded bg-label-secondary text-heading">
+                  <i class="ri-wallet-3-line ri-24px"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h4 class="mb-0">32</h4>
+                <p class="mb-0">Failed</p>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-secondary text-heading">
+                  <i class="ri-error-warning-line ri-24px"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="filter" class="form-label">Filter By</label>
+                    <select class="form-select" id="filter" name="filter">
+                        <option value="">Select</option>
+                        <option value="last_week">Last Week</option>
+                        <option value="last_month">Last Month</option>
+                        <option value="last_year">Last year</option>
+                        <option value="custom">Custom Dates</option>
+                    </select>
+                </div>
+                <div class="col-md-4 custom-date-filter d-none">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date">
+                </div>
+                <div class="col-md-4 custom-date-filter d-none">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% if not no_orders %}
+  <div class="d-flex justify-content-end mb-4">
+    <a href="{% url 'orders:download_sales_report' %}?filter={{ filter_by }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-primary">
+        Download Report
+    </a>
+  </div>
+  {% else %}
+  <div class="alert alert-warning">
+    No records found to download.
+  </div>
+  {% endif %}
+  
+  <!-- Order List Table -->
+  <div class="card">
+    <div class="card-datatable table-responsive">
+        <table class="datatables-order table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Payment</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.order_date }}</td>
+                    <td>{{ order.user.username }}</td>
+                    <td>{{ order.payment_method }}</td>
+                    <td>{{ order.total_amount }}</td>
+                    <td>{{ order.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="pagination-container">
+    <ul class="pagination">
+        {% if orders.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1">&laquo; First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ orders.previous_page_number }}">Previous</a>
+        </li>
+        {% endif %}
+
+        <li class="page-item active">
+            <span class="page-link">
+                Page {{ orders.number }} of {{ orders.paginator.num_pages }}
+            </span>
+        </li>
+
+        {% if orders.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ orders.next_page_number }}">Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ orders.paginator.num_pages }}">Last &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+
+  
+  
+            </div>
+
+
+            <script>
+              document.getElementById('filter').addEventListener('change', function() {
+                  var customDateFilter = document.querySelectorAll('.custom-date-filter');
+                  if (this.value === 'custom') {
+                      customDateFilter.forEach(function(el) {
+                          el.classList.remove('d-none');
+                      });
+                  } else {
+                      customDateFilter.forEach(function(el) {
+                          el.classList.add('d-none');
+                      });
+                  }
+              });
+            </script>
+
+
+{%endblock%}
+

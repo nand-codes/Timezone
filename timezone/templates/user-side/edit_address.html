@@ -1,0 +1,73 @@
+{% extends 'base/user_base.html' %}
+
+
+
+{% block content %}
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title mb-4">Edit Address</h5>
+        <form method="post">
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="firstName" name="first_name" value="{{ address.first_name }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="lastName" name="last_name" value="{{ address.last_name }}" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="buildingName" class="form-label">Building Name</label>
+                <input type="text" class="form-control" id="buildingName" name="building_name" value="{{ address.building_name }}">
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="phoneNumber" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                    <input type="tel" class="form-control" id="phoneNumber" name="phone_number" value="{{ address.phone_number }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="emailAddress" class="form-label">Email Address <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="emailAddress" name="email_address" value="{{ address.email_address }}" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="country" class="form-label">Country</label>
+                <select class="form-select" id="country" name="country" required>
+                    <option value="">Choose...</option>
+                    <option value="Country 1" {% if address.country == 'Country 1' %}selected{% endif %}>Country 1</option>
+                    <option value="Country 2" {% if address.country == 'Country 2' %}selected{% endif %}>Country 2</option>
+                    <!-- Add more countries as needed -->
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="addressLine1" class="form-label">Address Line 1 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="addressLine1" name="address_line_1" value="{{ address.address_line_1 }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="addressLine2" class="form-label">Address Line 2</label>
+                <input type="text" class="form-control" id="addressLine2" name="address_line_2" value="{{ address.address_line_2 }}">
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="townCity" class="form-label">Town/City <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="townCity" name="town_city" value="{{ address.town_city }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="district" class="form-label">District</label>
+                    <input type="text" class="form-control" id="district" name="district" value="{{ address.district }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="postcodeZip" class="form-label">Postcode/ZIP <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="postcodeZip" name="postcode_zip" value="{{ address.postcode_zip }}" required>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{%endblock%}

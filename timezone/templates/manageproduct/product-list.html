@@ -1,0 +1,106 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+<div class="container-xxl flex-grow-1 container-p-y">
+    
+    <!-- Search Form -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0">Products</h3>
+     
+              <form method="GET" action="">
+                  <div class="input-group" style="width: fit-content;">
+                      <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Search Products">
+                      <button type="submit" class="btn btn-primary">Search</button>
+         
+              </form>
+          </div>
+      
+            <div class="d-flex justify-content-between align-items-center row pt-4 gap-4 gap-md-0">
+                <div class="col-md-4 product_status"></div>
+                <div class="col-md-4 product_category"></div>
+                <div class="col-md-4 product_stock"></div>
+            </div>
+        </div>
+        <div class="card-datatable table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Name</th>
+                        <th>Image</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                        <th>Gender</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in obj %}
+                    <tr>
+                        <td>{{ i.id }}</td>
+                        <td>{{ i.name }}</td>
+                        <td><img src="{{ i.image.url }}" height="60px" width="60px" alt="{{ i.name }}"></td>
+                        <td>{{ i.brand }}</td>
+                        <td>{{ i.price }}</td>
+                        <td>{{ i.gender }}</td>
+                        <td>
+                            <a class="btn btn-status btn-primary" href="{% url 'products:varient_list' i.id %}">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No products found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination mt-4">
+            <nav>
+                <ul class="pagination">
+                    {% if obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1&search={{ search_query }}" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ obj.previous_page_number }}&search={{ search_query }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in obj.paginator.page_range %}
+                        {% if obj.number == num %}
+                            <li class="page-item active">
+                                <a class="page-link" href="#">{{ num }}</a>
+                            </li>
+                        {% elif num > obj.number|add:-3 and num < obj.number|add:3 %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}&search={{ search_query }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ obj.next_page_number }}&search={{ search_query }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ obj.paginator.num_pages }}&search={{ search_query }}" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

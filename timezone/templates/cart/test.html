@@ -1,0 +1,20 @@
+{% if all_out_of_stock %}
+							<button class="btn-product btn-cart" disabled>
+								<span>Not Available</span>
+							</button>
+							{% else %}
+							{% if user.is_authenticated %}
+							<form action="{% url 'add-to-cart' variant_id.id %}" method="POST" style="display: inline;">
+								{% csrf_token %}
+								<input type="hidden" name="size" id="hidden-size">
+								<input type="hidden" name="quantity" id="hidden-quantity">
+								<button type="submit" class="btn-product btn-cart">
+									<span>Add to Cart</span>
+								</button>
+							</form>
+							{% else %}
+							<a href="{% url 'login-page' %}" class="btn-product btn-cart">
+								<span>Login</span>
+							</a>
+							{% endif %}
+							{% endif %}

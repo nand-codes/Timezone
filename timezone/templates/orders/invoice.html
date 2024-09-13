@@ -1,0 +1,178 @@
+{% extends 'base/user_base.html' %}
+{% load static %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'vendor/css/rtl/core.css' %}" class="template-customizer-core-css" />
+<link rel="stylesheet" href="{% static 'vendor/css/rtl/theme-default.css' %}" class="template-customizer-theme-css" />
+<link rel="stylesheet" href="{% static 'css/demo.css' %}" />
+
+
+{%endblock%}
+
+
+
+
+{% block content %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+            
+            
+
+    <div class="row invoice-preview">
+      <!-- Invoice -->
+      <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-6">
+        <div class="card invoice-preview-card p-sm-12 p-6">
+          <div class="card-body invoice-preview-header rounded p-6 text-heading">
+            <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
+              <div class="mb-xl-0 mb-6">
+                <div class="d-flex svg-illustration align-items-center gap-3 mb-6">
+                  <span class="app-brand-logo demo">
+    <span style="color:var(--bs-primary);">
+   
+    </span>
+    </span>
+                  <span class="mb-0 app-brand-text fw-semibold">Timezone</span>
+                </div>
+                <p class="mb-1">Calicut</p>
+                <p class="mb-1">Kerala, 673001, India</p>
+                <p class="mb-0">+91 7510572236, +44 (876) 543 2198</p>
+              </div>
+              <div>
+                <h5 class="mb-6 text-nowrap">Invoice #{{order.id}}</h5>
+                <div class="mb-1">
+                  <span>Date :</span>
+                  <span>{{order.order_date.date}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body px-0">
+            <div class="d-flex justify-content-between flex-wrap row-gap-2">
+              <div class="my-1">
+                <h6>Invoice To:</h6>
+                <p class="mb-1">{{user.username}}</p>
+                <p class="mb-1">{{userprofile.location}}</p>
+                <p class="mb-1">{{userprofile.state}}</p>
+                <p class="mb-1">{{userprofile.mobile}}</p>
+                <p class="mb-0">{{user.email}}</p>
+              </div>
+              <div class="my-1">
+                <h6>Bill Address:</h6>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td class="pe-4">First name:</td>
+                      <td>{{address.first_name}}</td>
+                    </tr>
+                    <tr>
+                      <td class="pe-4">Building name:</td>
+                      <td>{{address.building_name}}</td>
+                    </tr>
+                    <tr>
+                      <td class="pe-4">address line:</td>
+                      <td>{{address.address_line_1}}</td>
+                    </tr>
+                    <tr>
+                      <td class="pe-4">Pincode:</td>
+                      <td>{{address.postcode_zip}}</td>
+                    </tr>
+                    <tr>
+                      <td class="pe-4">Country:</td>
+                      <td>{{address.country}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive border rounded border-bottom-0">
+            <table class="table m-0">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Cost</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in order_item %}
+                <tr>
+                  <td class="text-nowrap text-heading">{{item.product.product.name}}</td>
+                  <td>{{item.product.product.price}}</td>
+                  <td>{{item.quantity}}</td>
+                  <td>{{item.total_price}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="table-responsive">
+            <table class="table m-0 table-borderless">
+              <tbody>
+                <tr>
+                  <td class="px-0 py-6 w-px-100">
+                    <p class="mb-1">Subtotal:</p>
+                    <p class="mb-1">Discount:</p>
+                    <p class="mb-2 border-bottom pb-2">Tax:</p>
+                    <p class="mb-0">Total:</p>
+                  </td>
+                  <td class="text-end px-0 py-6 w-px-100">
+                    <p class="fw-medium text-heading mb-1">{{grand_total}}</p>
+                    <p class="fw-medium text-heading mb-1">{{discount}}</p>
+                    <p class="fw-medium text-heading mb-2 border-bottom pb-2">$00.00</p>
+                    <p class="fw-medium text-heading mb-0">{{discounted_price}}</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+    
+          <hr class="mt-0 mb-6">
+   
+        </div>
+      </div>
+      <!-- /Invoice -->
+    
+      <!-- Invoice Actions -->
+      <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+        <div class="card">
+          <div class="card-body">
+            <button class="btn btn-primary d-grid w-100 mb-4 waves-effect waves-light">
+                <a href="{% url 'orders:generate_pdf' order.id %}" class="btn btn-primary d-grid w-100 mb-4 waves-effect waves-light">
+                    <span class="d-flex align-items-center justify-content-center text-nowrap">
+                      <i class="ri-send-plane-line ri-16px scaleX-n1-rtl me-1_5"></i>Download Invoice
+                    </span>
+                  </a>
+            </button>
+            <button class="btn btn-outline-secondary d-grid w-100 mb-4 waves-effect">
+              Print
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- /Invoice Actions -->
+    </div>
+    
+    <!-- Offcanvas -->
+   
+    <!-- /Send Invoice Sidebar -->
+    
+    <!-- Add Payment Sidebar -->
+    
+    <!-- /Add Payment Sidebar -->
+    
+    <!-- /Offcanvas -->
+    
+    
+              </div>
+
+
+{%endblock%}
+
+<script>
+    document.querySelectorAll('tr').forEach(row => {
+        const price = parseFloat(row.querySelector('.price').innerText);
+        const quantity = parseInt(row.querySelector('.quantity').innerText);
+        row.querySelector('.total123').innerText = (price * quantity).toFixed(2);
+    });
+</script>

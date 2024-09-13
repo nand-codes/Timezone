@@ -1,0 +1,120 @@
+{% extends 'base/user_base.html' %}
+
+
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-danger">
+        {{ message }}
+    </div>
+{% endfor %}
+{% endif %}
+<div class="container mt-4 mb-4">
+    <h2>Order Details</h2>
+  
+    <!-- Order Summary Card -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Order Information</h5>
+        <p><strong>Order ID:</strong> {{ order.id }}</p>
+        <p><strong>Date:</strong> {{ order.order_date }}</p>
+        <p><strong>method:</strong> {{ order.payment_method }}</p>
+        <p><strong>order status:</strong> {{ order.status }}</p>
+        <p><strong>Payment status:</strong> {{ order.payment_status }}</p>
+        <p><strong>Total Price:</strong> ${{ order.total_amount }}</p>
+  
+  
+
+  
+  
+  
+        {% if order.status == 'Canceled' %}
+        <div class="alert alert-warning mt-3">This order has been canceled.</div>
+        {% elif order.status == 'Pending' %}
+        <form action="{% url 'orders:order_details' order.id %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="cancel_order" value="true">
+          <button type="submit" class="btn btn-danger">Cancel Entire Order</button>
+        </form>
+        {% elif order.status == 'Failed' %}
+        <p>Payment failed or was cancelled. You can retry the payment.</p>
+        <a href="{% url 'cart:retry_payment' order.id %}" class="button">Retry Payment</a>
+        {% else %}
+        <div class="alert alert-info mt-3">Order cannot be canceled at this stage.</div>
+        {% endif %}
+        {% if order.status == 'Delivered' %}
+        <a href="{% url 'orders:invoice' order.id %}" class="button">Get invoice</a>
+        {%endif%}
+      </div>
+    </div>
+  
+  
+  
+  
+  
+    <!-- Order Items Table -->
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Order Items</h5>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Product Image</th>
+                <th>Product</th>
+                <th>colour</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Cancel</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order_items %}
+              <tr>
+                <td>
+                  <img src="{{ item.product.image.url }}"
+                    style="width: 50px; height: 50px; object-fit: cover;">
+                </td>
+                <td>{{ item.product.product.name }}</td>
+                <td>{{ item.product.colour }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }}</td>
+                <td>
+  
+                  {% if item.status == 'Pending' %}
+                  <form action="#" method="post" onsubmit="return confirm('Are you sure you want to cancel this product?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                </form>
+                  {% elif item.status == 'Canceled' %}
+                  <!-- Show this message if the order has been canceled -->
+                  <div class="alert alert-warning mt-3">This order has been canceled.</div>
+                  {% elif item.status == 'Delivered' %}
+
+                  <form action="" method="post" onsubmit="return confirm('Are you sure you want to return this product?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="return_item" value="{{ item.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Return</button>
+                </form>
+
+                  {% else %}
+                  <!-- Show a message indicating that the product cannot be canceled at this stage -->
+                  <div class="alert alert-info mt-3">This product cannot be canceled at this stage.</div>
+                  {%endif%}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{%endblock%}
+
+
+

@@ -1,0 +1,54 @@
+<h3>Proceed with Payment</h3>
+<p>Total Amount: ₹{{ amount|floatformat:2 }}</p>
+
+<!-- Form to submit Razorpay details to the success view -->
+<form id="payment-form" method="POST" action="{% url 'cart:razorpay_success' %}">
+    {% csrf_token %}
+    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+</form>
+
+<!-- Include the Razorpay script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- Retry Payment Button -->
+<button id="pay-btn">Retry Payment</button>
+
+<script>
+    // Options for Razorpay payment modal
+    var options = {
+        "key": "{{ razorpay_key }}",  // Your Razorpay Key ID
+        "amount": "{{ amount }}",      // Amount in paise (e.g., ₹500.00 = 50000 paise)
+        "currency": "INR",
+        "order_id": "{{ razorpay_order_id }}",  // Razorpay Order ID
+        "handler": function (response) {
+            // Payment successful, populate form fields with Razorpay details
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+
+            // Submit the form with payment details
+            document.getElementById('payment-form').submit();
+        },
+        "theme": {
+            "color": "#3399cc"
+        },
+        "modal": {
+            "ondismiss": function() {
+                // Trigger action when payment modal is dismissed (e.g., retry failure)
+                alert("Payment was cancelled or failed.");
+                window.location.href = "{% url 'cart:razorpay_failure' %}";  // Handle failure
+            }
+        }
+    };
+
+    // Create Razorpay instance
+    var rzp = new Razorpay(options);
+
+    // Trigger the Razorpay modal when the "Retry Payment" button is clicked
+    document.getElementById('pay-btn').onclick = function(e) {
+        rzp.open();
+        e.preventDefault();  // Prevent default form submission
+    };
+</script>

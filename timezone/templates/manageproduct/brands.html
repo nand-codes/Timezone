@@ -1,0 +1,172 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+<div class="container-xxl flex-grow-1 container-p-y">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-danger">
+        {{message}}
+    </div>
+    {%endfor %}
+    {%endif%}
+    <div class="card">
+        <h5 class="card-header">Brand</h5>
+        <div class="table-responsive text-nowrap">
+            <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#addNewCCModal"> Add new </button>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Brand id</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                        <th>View</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for i in brand %}
+                    <tr>
+                        <td>{{ i.id }}</td>
+                        <td>{{ i.name }}</td>
+                        {% if i.status %}
+                        <td><span style="color: rgb(9, 163, 50); font-weight: 600;">Active</span></td>
+                        {% else %}
+                        <td><span style="color: red; font-weight: 600;">Inactive</span></td>
+                        {% endif %}
+                        {% if i.status %}
+                        <td><a href="{% url 'products:brand_status' i.id %}" class="btn btn-status btn-danger"><i class="glyphicon glyphicon-remove-circle"></i> Deactivate</a></td>
+                        {% else %}
+                        <td><a href="{% url 'products:brand_status' i.id %}" class="btn btn-status btn-success"><i class="glyphicon glyphicon-ok-circle"></i> Active</a></td>
+                        {% endif %}
+                        <td>
+                            <button type="button" class="btn btn-primary waves-effect waves-light edit-brand-btn"
+                                data-bs-toggle="modal" data-bs-target="#editCCModal"
+                                data-brand-id="{{ i.id }}"
+                                data-brand-name="{{ i.name }}">
+                                Edit
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add New Brand Modal -->
+    <div class="modal fade" id="addNewCCModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered1 modal-simple modal-add-new-cc">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="text-center mb-6">
+                        <h4 class="mb-2">Add New Brand</h4>
+                    </div>
+                    <form method="post" id="addNewCCForm" class="row g-5 fv-plugins-bootstrap5 fv-plugins-framework">
+                        {% csrf_token %}
+                        <div class="col-12 fv-plugins-icon-container">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input id="modalAddCard" name="brand" class="form-control credit-card-mask" type="text"
+                                        placeholder="Brand name" aria-describedby="modalAddCard2">
+                                    <label for="modalAddCard">Brand name</label>
+                                    <div class="invalid-feedback" id="add-brand-error-message"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary me-3 waves-effect waves-light">Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary btn-reset waves-effect" data-bs-dismiss="modal"
+                                aria-label="Close">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Brand Modal -->
+    <div class="modal fade" id="editCCModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered1 modal-simple modal-add-new-cc">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="text-center mb-6">
+                        <h4 class="mb-2">Edit Brand</h4>
+                    </div>
+                    <form method="post" id="editCategoryForm" class="row g-5 fv-plugins-bootstrap5 fv-plugins-framework">
+                        {% csrf_token %}
+                        <div class="col-12 fv-plugins-icon-container">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input id="modalEditBrand" name="brand" class="form-control credit-card-mask" type="text"
+                                        placeholder="Brand name">
+                                    <label for="modalEditBrand">Brand name</label>
+                                    <div class="invalid-feedback" id="edit-brand-error-message"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary me-3 waves-effect waves-light">Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary btn-reset waves-effect" data-bs-dismiss="modal"
+                                aria-label="Close">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validation for Add New Brand Form
+            const addNewCCForm = document.getElementById('addNewCCForm');
+            const addBrandInput = addNewCCForm.querySelector('input[name="brand"]');
+            const addBrandErrorMessage = document.getElementById('add-brand-error-message');
+            
+            addNewCCForm.addEventListener('submit', function(event) {
+                const brandName = addBrandInput.value.trim();
+                
+                if (brandName === '' || !isNaN(brandName) || /\d/.test(brandName)) {
+                    event.preventDefault();
+                    addBrandErrorMessage.textContent = 'Brand name is required and cannot contain numbers or be empty.';
+                } else {
+                    addBrandErrorMessage.textContent = '';
+                }
+            });
+
+            // Validation for Edit Brand Form
+            const editCategoryForm = document.getElementById('editCategoryForm');
+            const editBrandInput = editCategoryForm.querySelector('input[name="brand"]');
+            const editBrandErrorMessage = document.getElementById('edit-brand-error-message');
+            
+            editCategoryForm.addEventListener('submit', function(event) {
+                const brandName = editBrandInput.value.trim();
+                
+                if (brandName === '' || !isNaN(brandName) || /\d/.test(brandName)) {
+                    event.preventDefault();
+                    editBrandErrorMessage.textContent = 'Brand name is required and cannot contain numbers or be empty.';
+                } else {
+                    editBrandErrorMessage.textContent = '';
+                }
+            });
+
+            // Populate the Edit Brand Modal with brand data
+            const editButtons = document.querySelectorAll('.edit-brand-btn');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const brandId = this.getAttribute('data-brand-id');
+                    const brandName = this.getAttribute('data-brand-name');
+
+                    const modal = document.getElementById('editCCModal');
+                    const brandInput = modal.querySelector('input[name="brand"]');
+
+                    brandInput.value = brandName;
+
+                    const form = modal.querySelector('form');
+                    form.action = `{% url 'products:edit_brand' 0 %}`.replace('0', brandId);
+                });
+            });
+        });
+    </script>
+{% endblock %}

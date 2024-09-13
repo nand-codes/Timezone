@@ -1,0 +1,89 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card">
+        <h5 class="card-header">Coupons</h5>
+        <div class="table-responsive text-nowrap">
+            <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#addNewCCModal"> Add new </button>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Coupon code</th>
+                        <th>Discount</th>
+                        <th>Status</th>
+                        <th>Valid from</th>
+                        <th>Expiry date</th>
+                        <th>Action</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for i in coupons %}
+                    <tr>
+                        <td>{{ i.code }}</td>
+                        <td>{{ i.discount }}</td>
+                        {% if i.active %}
+                        <td><span style="color: rgb(9, 163, 50); font-weight: 600;">Active</span></td>
+                        {% else %}
+                        <td><span style="color: red; font-weight: 600;">Inactive</span></td>
+                        {% endif %}
+                        <td>{{i.valid_from.date}}</td>
+                        <td>{{i.valid_to.date}}</td>
+                        {% if i.active %}
+                        <td><a href="{% url 'cart:coupon_status' i.id %}" class="btn btn-status btn-danger "><i class="glyphicon glyphicon-remove-circle"></i> Deactivate</a></td>
+                        {% else %}
+                        <td>  <a href="{% url 'cart:coupon_status' i.id %}" class="btn btn-status btn-success"><i class="glyphicon glyphicon-ok-circle"></i> Active</a></td>
+                        {% endif %}            
+                        <td><a href="{% url 'cart:coupon_delete' i.id %}">Delete</button></a>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add New Brand Modal -->
+    <div class="modal fade" id="addNewCCModal" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered1 modal-simple modal-add-new-cc">
+          <div class="modal-content">
+            <div class="modal-body p-0">
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <div class="text-center mb-6">
+                <h4 class="mb-2">Add New Coupon</h4>
+              </div>
+              <form method="post" id="addNewCCForm" class="row g-5 fv-plugins-bootstrap5 fv-plugins-framework"  >
+                {% csrf_token %}
+                <div class="col-12 fv-plugins-icon-container">
+                  <div class="input-group input-group-merge">
+                    <div class="form-floating form-floating-outline">
+                      <input id="modalAddCard" name="coupon_code" class="form-control credit-card-mask" type="text" placeholder="1356 3215 6548 7898" aria-describedby="modalAddCard2">
+                      <label for="modalAddCard">Coupon code</label>
+                    </div>
+                    <span class="input-group-text cursor-pointer p-1" id="modalAddCard2"><span class="card-type"></span></span>
+                  </div>
+                <div class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></div></div>
+                <div class="col-12 col-md-6">
+                  <div class="form-floating form-floating-outline">
+                    <input type="number" id="modalAddCardName" name="discount" class="form-control" placeholder="Enter a positive number" min="0.1" step="0.1" required>
+
+                    <label for="modalAddCardName">Discount</label>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="form-floating form-floating-outline">
+                    <input type="text" id="modalAddCardExpiryDate" name="valid_to" class="form-control expiry-date-mask" placeholder="YYYY-MM-DD">
+                    <label for="modalAddCardExpiryDate">Expiry</label>
+                  </div>
+                </div>
+                <div class="col-12 text-center">
+                  <button type="submit" class="btn btn-primary me-3 waves-effect waves-light">Submit</button>
+                  <button type="reset" class="btn btn-outline-secondary btn-reset waves-effect" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                </div>
+            </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+{%endblock%}

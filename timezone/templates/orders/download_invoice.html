@@ -1,0 +1,151 @@
+<html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 10px;  /* Reduced font size */
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                padding: 5px;
+                width: 100%;
+            }
+            .header, .footer {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;  /* Reduced margin */
+            }
+            .header h1 {
+                margin-bottom: 0;
+                font-size: 14px;  /* Reduced font size */
+            }
+            .address, .invoice-info {
+                width: 48%;
+                display: inline-block;
+                vertical-align: top;
+            }
+            .address {
+                text-align: left;
+            }
+            .invoice-info {
+                text-align: right;
+            }
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 10px;  /* Reduced margin */
+            }
+            .table th, .table td {
+                border: 1px solid #000;
+                padding: 4px;  /* Reduced padding */
+                text-align: left;
+                font-size: 9px;  /* Smaller font size for table */
+            }
+            .totals {
+                width: 100%;
+                text-align: right;
+            }
+            .totals td {
+                padding: 4px;
+            }
+            .note {
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Timezone</h1>
+                <p>Calicut, Kerala, 673001, India</p>
+                <p>+91 7510572236, +44 (876) 543 2198</p>
+            </div>
+
+            <div class="d-flex">
+                <div class="address">
+                    <h3>Invoice To:</h3>
+                    <p>{{user.username}}</p>
+                    <p>{{userprofile.location}}</p>
+                    <p>{{userprofile.state}}</p>
+                    <p>{{userprofile.mobile}}</p>
+                    <p>{{user.email}}</p>
+                </div>
+
+                <div class="invoice-info">
+                    <h3>Invoice #{{order.id}}</h3>
+                    <p>Date: {{order.order_date.date}}</p>
+                </div>
+            </div>
+
+            <h3>Bill To:</h3>
+            <table class="table">
+                <tr>
+                    <th>First Name</th>
+                    <td>{{address.first_name}}</td>
+                </tr>
+                <tr>
+                    <th>Building Name</th>
+                    <td>{{address.building_name}}</td>
+                </tr>
+                <tr>
+                    <th>Address Line</th>
+                    <td>{{address.address_line_1}}</td>
+                </tr>
+                <tr>
+                    <th>Pincode</th>
+                    <td>{{address.postcode_zip}}</td>
+                </tr>
+                <tr>
+                    <th>Country</th>
+                    <td>{{address.country}}</td>
+                </tr>
+            </table>
+
+            <h3>Order Details</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Cost</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_item %}
+                    <tr>
+                        <td>{{item.product.product.name}}</td>
+                        <td>{{item.product.product.price}}</td>
+                        <td>{{item.quantity}}</td>
+                        <td>{{item.total_price}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <table class="totals">
+                <tr>
+                    <td>Subtotal:</td>
+                    <td>{{grand_total}}</td>
+                </tr>
+                <tr>
+                    <td>Discount:</td>
+                    <td>{{discount}}</td>
+                </tr>
+                <tr>
+                    <td>Tax:</td>
+                    <td>0.00</td>
+                </tr>
+                <tr>
+                    <td>Total:</td>
+                    <td>{{discounted_price}}</td>
+                </tr>
+            </table>
+
+            <div class="note">
+                <p><strong>Note:</strong> It was a pleasure working with you and your team. We hope you will keep us in mind for future freelance projects. Thank you!</p>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,165 @@
+{% extends 'base/user_base.html' %}
+{% block content %}
+<section class="cart_area section_padding">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Product</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_products %}
+                    <tr data-item-id="{{ item.id }}">
+                        <td>
+                            <div class="media">
+                                <div class="d-flex">
+                                    <img src="{{ item.product.image.url }}" style="width: 60px; height: 60px;" alt="" />
+                                </div>
+                                <div class="media-body">
+                                    <p>{{ item.product.product.name }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <h5 class="item_price">{{ item.product.product.price }}</h5>
+                        </td>
+                        <td>
+                            <div class="product_count">
+                                <button class="btn btn-danger decrement-btn">-</button>
+                                <input class="input-number" type="text" value="{{ item.quantity }}" data-id="{{ item.id }}" min="1" max="10" readonly>
+                                <button class="btn btn-success increment-btn">+</button>
+                            </div>
+                        </td>
+                        <td>
+                            <h5 class="total-amount">{{ item.total_amount }}</h5>  
+                        </td>
+                        <td>
+                            <a href="{% url 'cart:remove_cart' item.product.id %}" class="btn btn-danger btn-sm">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="4" align="right">
+                            <h5>Grand Total</h5>
+                        </td>
+                        <td>
+                            <h5 id="grand-total">{{ grand_total }}</h5>  
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="checkout_btn_inner float-right">
+                <a class="btn_1" href="{% url 'products:shop' %}">Continue Shopping</a>
+                <a class="btn_1 checkout_btn_1" href="{% url 'cart:checkout' %}">Proceed to checkout</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .product_count {
+        display: flex;
+        align-items: center;
+    }
+
+    .decrement-btn, .increment-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        padding: 0;
+        text-align: center;
+    }
+
+    .input-number {
+        width: 50px;
+        text-align: center;
+        border: 1px solid #ddd;
+        margin: 0 10px;
+        font-size: 16px;
+        padding: 5px;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Function to calculate the total for a specific row
+    function calculateRowTotal($row) {
+        var quantity = $row.find('.input-number').val();
+        var price = parseFloat($row.find('.item_price').text());
+        var totalAmount = quantity * price;
+        $row.find('.total-amount').text(totalAmount.toFixed(2));
+        return totalAmount;
+    }
+
+    // Function to calculate the grand total across all rows
+    function calculateGrandTotal() {
+        var grandTotal = 0;
+        $('.input-number').each(function() {
+            var $row = $(this).closest('tr');
+            grandTotal += calculateRowTotal($row);
+        });
+        $('#grand-total').text(grandTotal.toFixed(2));
+    }
+
+    // Initialize totals
+    calculateGrandTotal();
+
+    // Increment quantity
+    $(document).on('click', '.increment-btn', function() {
+        var $input = $(this).siblings('.input-number');
+        var currentVal = parseInt($input.val());
+        if (!isNaN(currentVal) && currentVal < parseInt($input.attr('max'))) {
+            $input.val(currentVal).trigger('change');
+        }
+    });
+
+    // Decrement quantity
+    $(document).on('click', '.decrement-btn', function() {
+        var $input = $(this).siblings('.input-number');
+        var currentVal = parseInt($input.val());
+        if (!isNaN(currentVal) && currentVal > parseInt($input.attr('min'))) {
+            $input.val(currentVal).trigger('change');
+        }
+    });
+
+    // Update totals on quantity change
+    $(document).on('change', '.input-number', function() {
+        var quantity = $(this).val();
+        var cartItemId = $(this).data('id');
+        var $row = $(this).closest('tr');
+
+        $.ajax({
+            headers: { "X-CSRFToken": '{{ csrf_token }}' },
+            url: "{% url 'cart:update_cart' %}",
+            method: "POST",
+            data: {
+                'quantity': quantity,
+                'cart_item_id': cartItemId,
+            },
+            success: function(response) {
+                $row.find('.total-amount').text(response.total_amount.toFixed(2));
+                calculateGrandTotal();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating cart:', error);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

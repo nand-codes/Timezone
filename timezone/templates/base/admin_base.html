@@ -1,0 +1,344 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en" class="light-style layout-navbar-fixed layout-menu-fixed layout-compact" dir="ltr" data-theme="theme-default" data-assets-path="{% static '' %}" data-template="vertical-menu-template" data-style="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+    <title>Product List - eCommerce | Materio - Bootstrap Material Design Admin Template</title>
+
+    <meta name="description" content="Start your development with a Dashboard for Bootstrap 5" />
+    <meta name="keywords" content="dashboard, material, material design, bootstrap 5 dashboard, bootstrap 5 design, bootstrap 5">
+    <!-- Canonical SEO -->
+    <link rel="canonical" href="https://themeselection.com/item/materio-bootstrap-html-admin-template/">
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm5445.html?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-5DDHKGP');
+    </script>
+    <!-- End Google Tag Manager -->
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon/favicon.ico' %}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="{% static 'vendor/fonts/remixicon/remixicon.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/fonts/flag-icons.css' %}" />
+    
+    <!-- Menu waves for no-customizer fix -->
+    <link rel="stylesheet" href="{% static 'vendor/libs/node-waves/node-waves.css' %}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'vendor/css/rtl/core.css' %}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{% static 'vendor/css/rtl/theme-default.css' %}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{% static 'css/demo.css' %}" />
+    
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/typeahead-js/typeahead.css' %}" /> 
+    <link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}">
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="{% static 'vendor/js/helpers.js' %}"></script>
+    <!-- Template customizer & Theme config files -->
+    <!-- <script src="{% static 'assets/vendor/js/template-customizer.js' %}"></script> -->
+    <script src="{% static 'js/config.js' %}"></script>
+</head>
+
+<body>
+
+  
+  <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  
+  <!-- Layout wrapper -->
+<div class="layout-wrapper layout-content-navbar  ">
+  <div class="layout-container">
+<!-- Menu -->
+
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+
+  
+  <div class="app-brand demo ">
+    <a href="index.html" class="app-brand-link">
+      <span class="app-brand-logo demo me-1">
+<span style="color:var(--bs-primary);">
+  
+</span>
+</span>
+      <span class="app-brand-text demo menu-text fw-semibold ms-2">Timezone</span>
+    </a>
+
+    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+      <i class="menu-toggle-icon d-xl-block align-middle"></i>
+    </a>
+  </div>
+
+  <div class="menu-inner-shadow"></div>
+
+  
+  
+  <ul class="menu-inner py-1">
+    <!-- e-commerce-app menu start -->
+    <li class="menu-item active open">
+      
+      <ul class="menu-sub">
+        <li class="menu-item {% if request.resolver_match.url_name == 'admin_page' %}active{% endif %}">
+          <a href="{% url 'login:admin_page' %}" class="menu-link">
+            <div data-i18n="Dashboard">Dashboard</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <div data-i18n="Products">Products</div>
+          </a>
+          <ul class="menu-sub">
+            <li class="menu-item {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
+              <a href="{% url 'products:product_list' %}" class="menu-link">
+                <div data-i18n="Product List">Product List</div>
+              </a>
+            </li>
+            <li class="menu-item {% if request.resolver_match.url_name == 'add_product' %}active{% endif %}">
+              <a href="{% url 'products:add_product' %}" class="menu-link">
+                <div data-i18n="Add Product">Add Product</div>
+              </a>
+            </li>
+            <li class="menu-item {% if request.resolver_match.url_name == 'category' %}active{% endif %}">
+              <a href="{% url 'products:category' %}" class="menu-link">
+                <div data-i18n="Category List">Category List</div>
+              </a>
+            </li>
+            <li class="menu-item {% if request.resolver_match.url_name == 'brand_list' %}active{% endif %}">
+              <a href="{% url 'products:brand_list' %}" class="menu-link">
+                <div data-i18n="Brand_list">Brand list</div>
+              </a>
+            </li>
+          </ul>
+        </li>
+            <li class="menu-item {% if request.resolver_match.url_name == 'admin_view_order' %}active{% endif %}">
+              <a href="{% url 'orders:admin_view_order' %}" class="menu-link">
+                <div data-i18n="orders">Order List</div>
+              </a>
+            </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'users' %}active{% endif %}">
+          <a href="{% url 'user:users' %}" class="menu-link">
+            <div data-i18n="Users">Users</div>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <div data-i18n="Offers & Coupons">Offers and coupons</div>
+          </a>
+          <ul class="menu-sub">
+            <li class="menu-item {% if request.resolver_match.url_name == 'coupon_management' %}active{% endif %}">
+              <a href="{% url 'cart:coupon_management' %}" class="menu-link">
+                <div data-i18n="coupon management">All Coupons</div>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <div data-i18n="Offers">Offer_management</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {% if request.resolver_match.url_name == 'product_offer' %}active{% endif %}">
+                   <a href="{% url 'products:product_offer' %}" class="menu-link">
+                    <div data-i18n="Product offer">Product offer</div>
+                  </a>
+                </li>
+                <li class="menu-item {% if request.resolver_match.url_name == 'brand_offer' %}active{% endif %}">
+                  <a href="{% url 'products:brand_offer' %}" class="menu-link">
+                    <div data-i18n="Brand offer">brand offer</div>
+                  </a>
+                </li>
+
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li class="menu-item {% if request.resolver_match.url_name == 'sales_report' %}active{% endif %}">
+          <a href="{% url 'orders:sales_report' %}" class="menu-link">
+            <div data-i18n="Sales report">Sales report</div>
+          </a>
+        </li>  
+      </ul>
+    </li>
+    <!-- e-commerce-app menu end -->
+    
+    
+   
+  
+  
+
+</aside>
+<!-- / Menu -->
+
+    
+
+    <!-- Layout container -->
+    <div class="layout-page">
+      
+      
+
+
+
+<!-- Navbar -->
+
+<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+  
+
+  
+
+      
+      
+
+      
+      
+      <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0   d-xl-none ">
+        <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+          <i class="ri-menu-fill ri-24px"></i>
+        </a>
+      </div>
+      
+
+      <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+
+        
+     
+        
+        
+
+        
+
+        <ul class="navbar-nav flex-row align-items-center ms-auto">
+
+          
+          
+          
+          <!-- User -->
+          <li class="nav-item navbar-dropdown dropdown-user dropdown">
+            <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
+              <div class="avatar avatar-online">
+                <img src="{% static '../../assets/img/avatars/1.png' %}" alt class="w-px-40 h-auto rounded-circle">
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end mt-3 py-2">
+              <li>
+                <a class="dropdown-item" href="pages-account-settings-account.html">
+                  <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-2">
+                      <div class="avatar avatar-online">
+                        <img src="{% static '../../assets/img/avatars/1.png' %}" alt class="w-px-40 h-auto rounded-circle">
+                      </div>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h6 class="mb-0 small">John Doe</h6>
+                      <small class="text-muted">Admin</small>
+
+                    </div>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <div class="dropdown-divider"></div>
+              </li>
+              <li>
+                <a class="dropdown-item" href="pages-profile-user.html">
+                  <i class="ri-user-3-line ri-22px me-2"></i>
+                  <span class="align-middle">My Profile</span>
+                </a>
+              </li>
+
+              <li>
+                <div class="d-grid px-4 pt-2 pb-1">
+                  <a class="btn btn-danger d-flex" href="{% url 'login:logouts_admin' %}" >
+                    <small class="align-middle">Logout</small>
+                    <i class="ri-logout-box-r-line ms-2 ri-16px"></i>
+                  </a>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <!--/ User -->
+          
+
+
+        </ul>
+      </div>
+
+      
+     
+      
+      
+  
+</nav>
+
+<!-- / Navbar -->
+ {%block content%}{%endblock%}
+
+      
+
+      <!-- Content wrapper -->
+      <div class="content-wrapper">
+
+     
+
+    
+    
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+    
+    
+    <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+    <div class="drag-target"></div>
+    
+  </div>
+  <!-- / Layout wrapper -->
+
+  
+
+  
+
+  
+
+<!-- build:js vendor/js/core.js -->
+<script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+<script src="{% static 'vendor/libs/popper/popper.js' %}"></script>
+<script src="{% static 'vendor/js/bootstrap.js' %}"></script>
+<script src="{% static 'vendor/libs/node-waves/node-waves.js' %}"></script>
+<script src="{% static 'vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'vendor/libs/hammer/hammer.js' %}"></script>
+<script src="{% static 'vendor/libs/i18n/i18n.js' %}"></script>
+<script src="{% static 'vendor/libs/typeahead-js/typeahead.js' %}"></script>
+<script src="{% static 'vendor/js/menu.js' %}"></script>
+<!-- endbuild -->
+
+<!-- Vendors JS -->
+<script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
+
+<!-- Main JS -->
+<script src="{% static 'js/main.js' %}"></script>
+
+<!-- Page JS -->
+<script src="{% static 'js/app-ecommerce-dashboard.js' %}"></script>
+</body>
+</html>
+
+
+<!-- beautify ignore:end -->

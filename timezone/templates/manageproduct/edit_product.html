@@ -1,0 +1,189 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+
+<div class="container mt-5">
+    <div class="col-md mb-6 mb-md-0">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header text-center bg-gradient-primary-to-secondary text-white rounded-top">
+                <h2 class="mb-0">Edit product</h2>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Name Field -->
+                    <div class="form-floating form-floating-outline mb-4">
+                        <input type="text" class="form-control rounded-pill border-0 shadow-sm" id="product-name" value="{{product.name}}"  name="name" required="">
+                        <label for="product-name"><i class="ri-edit-box-line"></i>Name</label>
+                    </div>
+                    
+                    <!-- Brand Dropdown -->
+                    <div class="form-floating form-floating-outline mb-4">
+                        <select  class="form-select rounded-pill border-0 shadow-sm"  id="product-brand" name="brand" required="">
+                            <option value="{{product.brand.id}}">{{product.brand.name}}</option >
+                            {% for brand in brands %}
+                                <option value="{{ brand.id }}">{{ brand.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="product-brand"><i class="ri-store-line"></i> Brand</label>
+                    </div>
+                    
+                    <!-- Category Dropdown -->
+                    <div class="form-floating form-floating-outline mb-4">
+                        <select class="form-select rounded-pill border-0 shadow-sm" id="product-category" name="category" required="">
+                            <option value="{{product.Category.id}}">{{product.Category.type}}</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.type }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="product-category"><i class="ri-list-check-2"></i> Category</label>
+                    </div>
+
+                    <div class="form-floating form-floating-outline mb-4">
+                        <input type="number  " value="{{product.price}}" class="form-control rounded-pill border-0 shadow-sm" id="product-name" placeholder="Product Name" name="price" required="">
+                        <label for="price"><i class="ri-edit-box-line"></i> {{product.price}} </label>
+                    </div>
+                    
+                    <!-- Gender Radios -->
+                    <div class="mb-4">
+                        <label class="d-block form-label"><i class="ri-user-heart-line"></i> Gender</label>
+                        
+                        <!-- Male Radio Button -->
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="gender-male" name="gender" class="form-check-input shadow-sm" value="M" 
+                                   required="" {% if product.gender == "M" %}checked{% endif %}>
+                            <label class="form-check-label" for="gender-male">Male</label>
+                        </div>
+                        
+                        <!-- Female Radio Button -->
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="gender-female" name="gender" class="form-check-input shadow-sm" value="F" 
+                                   required="" {% if product.gender == "F" %}checked{% endif %}>
+                            <label class="form-check-label" for="gender-female">Female</label>
+                        </div>
+                        
+                        <!-- Unisexual Radio Button -->
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="gender-unisexual" name="gender" class="form-check-input shadow-sm" value="U" 
+                                   required="" {% if product.gender == "U" %}checked{% endif %}>
+                            <label class="form-check-label" for="gender-unisexual">Unisexual</label>
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- Description Textarea -->
+                    <div class="form-floating form-floating-outline mb-4">
+                        <textarea class="form-control rounded-3 border-0 shadow-sm" id="product-description" name="description" placeholder="Product Description" rows="3" required="">{{product.discription}}</textarea>
+                        <label for="product-description"><i class="ri-align-left"></i>description</label>
+                    </div>
+                    
+                    <!-- Product Image Upload -->
+                    <div class="mb-4">
+                        <label for="product-image" class="form-label">
+                            <i class="ri-image-line"></i> Update Product Image
+                        </label>
+                        <!-- Display the current image -->
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="Current Image" class="img-thumbnail mb-2" width="150">
+                        {% endif %}
+                        
+                        <!-- File input for updating the image -->
+                        <div class="mb-4">
+                            <label for="product-image" class="form-label"><i class="ri-image-line"></i> Upload Product Image</label>
+                            <input value="{{product.image.url}}" class="form-control shadow-sm" type="file" id="product-image" name="image"  accept="image/*">
+                            <br>
+                            <img src="{{product.image.url}}" id="image-preview" class="img-fluid mt-3" style="max-width: 100%; height: auto; display: none;" alt="Image Preview">
+                            <br>
+                            <button type="button" class="btn btn-info mt-3" id="crop-button" style="display: none;">Crop Image</button>
+                        </div>
+                        
+                        <!-- Hidden Field for Cropped Image Data -->
+                        <input type="hidden" id="cropped-image-data" name="cropped_image_data">
+    
+                    </div>
+
+                    
+                    
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary rounded-pill shadow-sm">🚀 Save Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('product-image');
+        const imagePreview = document.getElementById('image-preview');
+        const cropButton = document.getElementById('crop-button');
+        const croppedImageDataInput = document.getElementById('cropped-image-data');
+        let cropper;
+    
+        // Handle image input change
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+    
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                cropButton.style.display = 'inline-block';
+    
+                // Destroy any previous cropper instance
+                if (cropper) {
+                    cropper.destroy();
+                }
+    
+                // Initialize Cropper.js
+                cropper = new Cropper(imagePreview, {
+                    aspectRatio: 1, // Change the aspect ratio as needed
+                    viewMode: 1
+                });
+            };
+    
+            reader.readAsDataURL(file);
+        });
+    
+        // Handle crop button click
+        cropButton.addEventListener('click', function() {
+            if (cropper) {
+                // Get the cropped image as a data URL
+                const croppedCanvas = cropper.getCroppedCanvas();
+                if (croppedCanvas) {
+                    croppedImageDataInput.value = croppedCanvas.toDataURL('image/jpeg');
+                    alert('Image cropped successfully!');
+                } else {
+                    console.error('Cropping failed - check Cropper.js initialization.');
+                }
+            } else {
+                console.error('Cropper not initialized.');
+            }
+        });
+    
+        // Handle form submission
+        document.querySelector('form').addEventListener('submit', function(event) {
+            // Check if the image has been cropped
+            if (croppedImageDataInput.value) {
+                // Allow form submission
+                console.log('Form is ready to be submitted.');
+            } else {
+                // Prevent form submission if the image hasn't been cropped
+                event.preventDefault();
+                console.error('Cropped image data is missing.');
+                alert('Please crop the image before submitting the form.');
+            }
+        });
+    });
+    
+    </script>
+
+
+{%endblock%}

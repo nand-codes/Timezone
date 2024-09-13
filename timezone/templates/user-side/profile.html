@@ -1,0 +1,156 @@
+{%extends 'base/user_base.html' %}
+
+{% block style %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Roboto', sans-serif;
+    }
+    .sidebar {
+        background-color: #343a40;
+        color: #ffffff;
+        min-height: 100vh;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .sidebar h4 {
+        color: #ffffff;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+    .sidebar a {
+        color: #adb5bd;
+        font-weight: 500;
+        margin-bottom: 15px;
+        display: block;
+        text-decoration: none;
+        font-size: 16px;
+    }
+    .sidebar a:hover, .sidebar a.active {
+        color: #28a745;
+    }
+    .sidebar a.logout {
+        color: #ff6b6b;
+        margin-top: 50px;
+    }
+    .profile-details {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .profile-details h5 {
+        font-weight: bold;
+        color: #343a40;
+        margin-bottom: 30px;
+    }
+    .profile-details p {
+        color: #495057;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+    .btn-edit {
+        background-color: #ff416c;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .btn-edit:hover {
+        background-color: #ff224c;
+    }
+    .btn-change-password {
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .btn-change-password:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+
+
+{%endblock%}
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar">
+            <h4>Account</h4>
+            <a href="{% url 'user:profile' %}" class="active">Profile</a>
+            <a href="{% url 'orders:orders' %}">Orders</a>
+            <a href="{% url 'cart:coupon_management' %}">Coupons</a>
+            <a href="{% url 'user:wallet' %}">Wallet</a>
+            <a href="{% url 'user:address' %}">Addresses</a>
+            <a href="{% url 'login:logouts' %}" class="logout">Logout</a>
+            <a href="{% url 'login:change_password' %}" >Change Password</button>
+        </div>
+
+        <!-- Profile Details -->
+        <div class="col-md-9 p-4">
+            <div class="profile-details">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5>Profile Details</h5>
+                </div>
+                <p><strong>First name:</strong>{{user.first_name}}</p>
+                <p><strong>Mobile Number:</strong>{{user_profile.mobile}}</p>
+                <p><strong>Email ID:</strong>{{user.email}}</p>
+                <p><strong>Gender:</strong>{{user_profile.gender}}</p>
+                <p><strong>Location:</strong>{{user_profile.location}}</p>
+                <p><strong>State:</strong>{{user_profile.State}}</p>
+                <p><strong>Userame:</strong>{{user.username}}</p>
+                <a href="{% url 'user:edit_profile' %}"  class="btn btn-edit mt-3">Edit</a>
+            </div>
+            <div>
+                <h2>Invite your friends!</h2>
+                <p>Share your referral code with your friends:</p>
+                <h3>{{ user_profile.referral_code }}</h3>
+        
+                <a href="https://wa.me/?text=Use%20my%20referral%20code%20{{ user_profile.referral_code }}%20to%20sign%20up%20on%20our%20site!" target="_blank">
+                    <i class="fab fa-whatsapp" style="font-size:50px;color:#25D366;"></i>
+                </a>
+                <i class="fas fa-copy" style="font-size:40px;color:grey;cursor:pointer; margin-left: 20px;" onclick="copyToClipboard()"></i>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function copyToClipboard() {
+        // Get the referral code text
+        var referralCode = document.getElementById("referral-code").innerText;
+        
+        // Create a temporary textarea element to hold the text
+        var textarea = document.createElement("textarea");
+        textarea.value = referralCode;
+        
+        // Append the textarea to the document
+        document.body.appendChild(textarea);
+        
+        // Select the text and copy it to the clipboard
+        textarea.select();
+        document.execCommand("copy");
+        
+        // Remove the temporary textarea
+        document.body.removeChild(textarea);
+    
+        // Optionally, show an alert or a message to the user
+        alert("Referral code copied to clipboard!");
+    }
+    </script>
+    
+{%endblock%}

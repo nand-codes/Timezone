@@ -1,0 +1,173 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+<div class="container-xxl flex-grow-1 container-p-y">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-danger">
+        {{message}}
+    </div>
+    {% endfor %}
+    {% endif %}
+    <div class="card">
+        <h5 class="card-header">Category</h5>
+        <div class="table-responsive text-nowrap">
+            <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
+                data-bs-target="#addNewCCModal"> Add new </button>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category id</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                        <th>View</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for i in category %}
+                    <tr>
+                        <td>{{ i.id }}</td>
+                        <td>{{ i.type }}</td>
+                        {% if i.status %}
+                        <td><span style="color: rgb(9, 163, 50); font-weight: 600;">Active</span></td>
+                        {% else %}
+                        <td><span style="color: red; font-weight: 600;">Inactive</span></td>
+                        {% endif %}
+                        {% if i.status %}
+                        <td><a href="{% url 'products:category_status' i.id %}" class="btn btn-status btn-danger "><i class="glyphicon glyphicon-remove-circle"></i> Deactivate</a></td>
+                        {% else %}
+                        <td>  <a href="{% url 'products:category_status' i.id %}" class="btn btn-status btn-success"><i class="glyphicon glyphicon-ok-circle"></i> Active</a></td>
+                        {% endif %}
+                        <td>
+                            <button type="button" class="btn btn-primary waves-effect waves-light edit-category-btn"
+                                data-bs-toggle="modal" data-bs-target="#editCCModal"
+                                data-category-id="{{ i.id }}"
+                                data-category-name="{{ i.type }}">
+                                Edit
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add New Category Modal -->
+    <div class="modal fade" id="addNewCCModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered1 modal-simple modal-add-new-cc">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="text-center mb-6">
+                        <h4 class="mb-2">Add New Category</h4>
+                    </div>
+                    <form method="post" id="addNewCCForm" class="row g-5 fv-plugins-bootstrap5 fv-plugins-framework">
+                        {% csrf_token %}
+                        <div class="col-12 fv-plugins-icon-container">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input id="modalAddCard" name="category" class="form-control credit-card-mask" type="text"
+                                        placeholder="Category name" aria-describedby="modalAddCard2">
+                                    <label for="modalAddCard">Category name</label>
+                                    <div class="invalid-feedback" id="add-category-error-message"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary me-3 waves-effect waves-light">Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary btn-reset waves-effect" data-bs-dismiss="modal"
+                                aria-label="Close">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Category Modal -->
+    <div class="modal fade" id="editCCModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered1 modal-simple modal-add-new-cc">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="text-center mb-6">
+                        <h4 class="mb-2">Edit Category</h4>
+                    </div>
+                    <form method="post" id="editCategoryForm" class="row g-5 fv-plugins-bootstrap5 fv-plugins-framework">
+                        {% csrf_token %}
+                        <div class="col-12 fv-plugins-icon-container">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input id="modalEditCategory" name="category" class="form-control credit-card-mask" type="text"
+                                        placeholder="Category name">
+                                    <label for="modalEditCategory">Category name</label>
+                                    <div class="invalid-feedback" id="edit-category-error-message"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary me-3 waves-effect waves-light">Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary btn-reset waves-effect" data-bs-dismiss="modal"
+                                aria-label="Close">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validation for Add New Category Form
+            const addNewCCForm = document.getElementById('addNewCCForm');
+            const addCategoryInput = addNewCCForm.querySelector('input[name="category"]');
+            const addCategoryErrorMessage = document.getElementById('add-category-error-message');
+            
+            addNewCCForm.addEventListener('submit', function(event) {
+                const categoryName = addCategoryInput.value.trim();
+                
+                if (categoryName === '' || !isNaN(categoryName) || /\d/.test(categoryName)) {
+                    event.preventDefault();
+                    addCategoryErrorMessage.textContent = 'Category name is required and cannot contain numbers or be empty.';
+                } else {
+                    addCategoryErrorMessage.textContent = '';
+                }
+            });
+
+            // Validation for Edit Category Form
+            const editCategoryForm = document.getElementById('editCategoryForm');
+            const editCategoryInput = editCategoryForm.querySelector('input[name="category"]');
+            const editCategoryErrorMessage = document.getElementById('edit-category-error-message');
+            
+            editCategoryForm.addEventListener('submit', function(event) {
+                const categoryName = editCategoryInput.value.trim();
+                
+                if (categoryName === '' || !isNaN(categoryName) || /\d/.test(categoryName)) {
+                    event.preventDefault();
+                    editCategoryErrorMessage.textContent = 'Category name is required and cannot contain numbers or be empty.';
+                } else {
+                    editCategoryErrorMessage.textContent = '';
+                }
+            });
+
+            // Populate the Edit Category Modal with category data
+            const editButtons = document.querySelectorAll('.edit-category-btn');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-category-id');
+                    const categoryName = this.getAttribute('data-category-name');
+
+                    const modal = document.getElementById('editCCModal');
+                    const categoryInput = modal.querySelector('input[name="category"]');
+
+                    categoryInput.value = categoryName;
+
+                    const form = modal.querySelector('form');
+                    form.action = `{% url 'products:edit_category' 0 %}`.replace('0', categoryId);
+                });
+            });
+        });
+    </script>
+{% endblock %}

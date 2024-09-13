@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OTP Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        .container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .container input[type="text"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .container button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .container button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #resend-otp {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+        #timer {
+            text-align: center;
+            margin-top: 20px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+          {% if messages %}
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-md-6 offset-md-3">
+                                            <div class="alert alert-primary">
+                                                {% for m in messages %}
+                                                    <p>{{ m }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+        <h2>OTP Verification</h2>
+        {% if error_message %}
+        <div class="error">{{ error_message }}</div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <label for="otp">Enter OTP:</label>
+            <input type="text" id="otp" name="otp" required>
+            <button type="submit">Verify</button>
+        </form>
+        <button id="resend-otp" onclick="resendOtp()" disabled>Resend OTP</button>
+        <div id="timer">01:00</div>
+    </div>
+
+
+    <script>
+        let countdown;
+        const OTP_DURATION = 60;  // Duration of OTP timer in seconds
+
+        function startTimer(remainingTime) {
+            clearInterval(countdown);
+            let timer = remainingTime, minutes, seconds;
+            countdown = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                document.getElementById('timer').textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(countdown);
+                    document.getElementById('resend-otp').disabled = false;
+                }
+            }, 1000);
+        }
+
+        function resendOtp() {
+            fetch("{% url 'login:resend_otp' %}", {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': "{{ csrf_token }}"
+                }
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      alert('OTP resent successfully');
+                      localStorage.setItem('otpSentTime', Date.now());  // Reset the start time
+                      document.getElementById('resend-otp').disabled = true;
+                      startTimer(OTP_DURATION);  // Restart the timer
+                  } else {
+                      alert('Failed to resend OTP.');
+                  }
+              });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const otpSentTime = localStorage.getItem('otpSentTime');
+            if (otpSentTime) {
+                const elapsedTime = Math.floor((Date.now() - otpSentTime) / 1000);
+                const remainingTime = OTP_DURATION - elapsedTime;
+
+                if (remainingTime > 0) {
+                    document.getElementById('resend-otp').disabled = true;
+                    startTimer(remainingTime);
+                } else {
+                    document.getElementById('resend-otp').disabled = false;
+                }
+            } else {
+                localStorage.setItem('otpSentTime', Date.now());  // Store the start time
+                document.getElementById('resend-otp').disabled = true;
+                startTimer(OTP_DURATION);
+            }
+        });
+    </script>
+</body>
+</html>

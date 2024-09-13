@@ -1,0 +1,200 @@
+{% extends 'base/user_base.html' %}
+{% block style %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Roboto', sans-serif;
+    }
+    .sidebar {
+        background-color: #343a40;
+        color: #ffffff;
+        min-height: 100vh;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .sidebar h4 {
+        color: #ffffff;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+    .sidebar a {
+        color: #adb5bd;
+        font-weight: 500;
+        margin-bottom: 15px;
+        display: block;
+        text-decoration: none;
+        font-size: 16px;
+    }
+    .sidebar a:hover, .sidebar a.active {
+        color: #28a745;
+    }
+    .sidebar a.logout {
+        color: #ff6b6b;
+        margin-top: 50px;
+    }
+    .profile-details {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .profile-details h5 {
+        font-weight: bold;
+        color: #343a40;
+        margin-bottom: 30px;
+    }
+    .profile-details p {
+        color: #495057;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+    .btn-edit {
+        background-color: #ff416c;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .btn-edit:hover {
+        background-color: #ff224c;
+    }
+    .btn-change-password {
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .btn-change-password:hover {
+        background-color: #0056b3;
+    }
+</style>
+{%endblock%}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar">
+            <h4>Account</h4>
+            <a href="{% url 'user:profile' %}" class="active">Profile</a>
+            <a href="#">Orders</a>
+            <a href="#">Coupons</a>
+            <a href="#">Wallet</a>
+            <a href="{% url 'user:address' %}">Addresses</a>
+            <a href="{% url 'login:logouts' %}" class="logout">Logout</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="container mt-5">
+                {% if orders %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th scope="col">Order ID</th>
+                                    <th scope="col">Order Date</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr class="clickable-row" data-href="{% url 'orders:order_details' order.id %}">
+                                    <td>{{ order.id }}</td>
+                                    <td>{{ order.order_date }}</td>
+
+                                    <td>
+                                        {% if order.status == 'Pending' %}
+                                            <p style="color: orange;">Pending</p>
+                                        {% elif order.status == 'Failed' %}
+                                            <p style="color: red;">Failed</p>
+                                        {% elif order.status == 'Delivered' %}
+                                            <p style="color: greenyellow;">Delivered</p>
+                                        {% elif order.status == 'Returned' %}
+                                            <p style="color: blue;">Returned</p>
+                                        {% elif order.status == 'Return Request' %}
+                                            <p style="color: red;">Return Request</p>
+                                        {% else %}
+                                            <p>{{ order.status }}</p>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination controls -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if orders.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ orders.previous_page_number }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in orders.paginator.page_range %}
+                                {% if orders.number == num %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="#">{{ num }}</a>
+                                    </li>
+                                {% elif num > orders.number|add:-3 and num < orders.number|add:3 %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if orders.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ orders.next_page_number }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ orders.paginator.num_pages }}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% else %}
+                    <div class="alert alert-info" role="alert">
+                        No orders found.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function($) {
+        $(".clickable-row").click(function() {
+            window.location = $(this).data("href");
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,153 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card">
+        <h5 class="card-header">Color</h5>
+        <div class="table-responsive text-nowrap">
+            <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#addNewColorModal"> Add new </button>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Color ID</th>
+                        <th>Name</th>
+                        <th>View</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for i in colour %}
+                    <tr>
+                        <td>{{ i.id }}</td>
+                        <td>{{ i.colour }}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary waves-effect waves-light edit-color-btn"
+                                data-bs-toggle="modal" data-bs-target="#editColorModal"
+                                data-color-id="{{ i.id }}"
+                                data-color-name="{{ i.colour }}">
+                                Edit
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add New Color Modal -->
+    <div class="modal fade" id="addNewColorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered1 modal-simple modal-add-new-color">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="text-center mb-6">
+                        <h4 class="mb-2">Add New Color</h4>
+                    </div>
+                    <form method="post" id="addNewColorForm" class="row g-5 fv-plugins-bootstrap5 fv-plugins-framework">
+                        {% csrf_token %}
+                        <div class="col-12 fv-plugins-icon-container">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input id="modalAddColor" name="colour" class="form-control credit-card-mask" type="text"
+                                        placeholder="Color name" aria-describedby="modalAddColor2">
+                                    <label for="modalAddColor">Color name</label>
+                                    <div class="invalid-feedback" id="add-color-error-message"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary me-3 waves-effect waves-light">Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary btn-reset waves-effect" data-bs-dismiss="modal"
+                                aria-label="Close">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Color Modal -->
+    <div class="modal fade" id="editColorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered1 modal-simple modal-add-new-color">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="text-center mb-6">
+                        <h4 class="mb-2">Edit Color</h4>
+                    </div>
+                    <form method="post" id="editColorForm" class="row g-5 fv-plugins-bootstrap5 fv-plugins-framework">
+                        {% csrf_token %}
+                        <div class="col-12 fv-plugins-icon-container">
+                            <div class="input-group input-group-merge">
+                                <div class="form-floating form-floating-outline">
+                                    <input id="modalEditColor" name="colour" class="form-control credit-card-mask" type="text"
+                                        placeholder="Color name">
+                                    <label for="modalEditColor">Color name</label>
+                                    <div class="invalid-feedback" id="edit-color-error-message"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary me-3 waves-effect waves-light">Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary btn-reset waves-effect" data-bs-dismiss="modal"
+                                aria-label="Close">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validation for Add New Color Form
+            const addNewColorForm = document.getElementById('addNewColorForm');
+            const addColorInput = addNewColorForm.querySelector('input[name="color"]');
+            const addColorErrorMessage = document.getElementById('add-color-error-message');
+            
+            addNewColorForm.addEventListener('submit', function(event) {
+                const colorName = addColorInput.value.trim();
+                
+                if (colorName === '' || !isNaN(colorName) || /\d/.test(colorName)) {
+                    event.preventDefault();
+                    addColorErrorMessage.textContent = 'Color name is required and cannot contain numbers or be empty.';
+                } else {
+                    addColorErrorMessage.textContent = '';
+                }
+            });
+
+            // Validation for Edit Color Form
+            const editColorForm = document.getElementById('editColorForm');
+            const editColorInput = editColorForm.querySelector('input[name="color"]');
+            const editColorErrorMessage = document.getElementById('edit-color-error-message');
+            
+            editColorForm.addEventListener('submit', function(event) {
+                const colorName = editColorInput.value.trim();
+                
+                if (colorName === '' || !isNaN(colorName) || /\d/.test(colorName)) {
+                    event.preventDefault();
+                    editColorErrorMessage.textContent = 'Color name is required and cannot contain numbers or be empty.';
+                } else {
+                    editColorErrorMessage.textContent = '';
+                }
+            });
+
+            // Populate the Edit Color Modal with color data
+            const editButtons = document.querySelectorAll('.edit-color-btn');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const colorId = this.getAttribute('data-color-id');
+                    const colorName = this.getAttribute('data-color-name');
+
+                    const modal = document.getElementById('editColorModal');
+                    const colorInput = modal.querySelector('input[name="colour"]');
+
+                    colorInput.value = colorName;
+
+                    const form = modal.querySelector('form');
+                    form.action = `{% url 'products:colour_edit' 0 %}`.replace('0', colorId);
+                });
+            });
+        });
+    </script>
+{% endblock %}

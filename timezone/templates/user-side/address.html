@@ -1,0 +1,194 @@
+{% extends 'base/user_base.html' %}
+
+{% block style %}
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Roboto', sans-serif;
+    }
+    .sidebar {
+        background-color: #343a40;
+        color: #ffffff;
+        min-height: 100vh;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .sidebar h4 {
+        color: #ffffff;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+    .sidebar a {
+        color: #adb5bd;
+        font-weight: 500;
+        margin-bottom: 15px;
+        display: block;
+        text-decoration: none;
+        font-size: 16px;
+    }
+    .sidebar a:hover, .sidebar a.active {
+        color: #28a745;
+    }
+    .sidebar a.logout {
+        color: #ff6b6b;
+        margin-top: 50px;
+    }
+    .profile-details {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .profile-details h5 {
+        font-weight: bold;
+        color: #343a40;
+        margin-bottom: 30px;
+    }
+    .profile-details p {
+        color: #495057;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+    .btn-edit {
+        background-color: #ff416c;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .btn-edit:hover {
+        background-color: #ff224c;
+    }
+    .btn-change-password {
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .btn-change-password:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar">
+            <h4>Account</h4>
+            <a href="{% url 'user:profile' %}" class="active">Profile</a>
+            <a href="{% url 'orders:orders' %}">Orders</a>
+            <a href="{% url 'cart:coupon_management' %}">Coupons</a>
+            <a href="{% url 'user:wallet' %}">Wallet</a>
+            <a href="{% url 'user:address' %}">Addresses</a>
+            <a href="{% url 'login:logouts' %}" class="logout">Logout</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Address Cards -->
+            <h3 class="mb-4 text-center">Saved Addresses</h3>
+            <div class="row">
+                {% for address in addresses %}
+                <!-- Example: Replace with dynamic data in Django template -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ address.first_name }} {{ address.last_name }}</h5>
+                            <p class="card-text">
+                                <strong>Building Name:</strong> {{ order_address.building_name }} <br>
+                                <strong>Phone Number:</strong> {{ order_address.phone_number }} <br>
+                                <strong>Email Address:</strong> {{ address.email_address }} <br>
+                                <strong>Country:</strong> {{ address.country }} <br>
+                                <strong>Address Line 1:</strong> {{ address.address_line_1 }} <br>
+                                <strong>Address Line 2:</strong> {{ address.address_line_2 }} <br>
+                                <strong>Town/City:</strong> {{ address.town_city }} <br>
+                                <strong>District:</strong> {{ address.district }} <br>
+                                <strong>Postcode/ZIP:</strong> {{ address.postcode_zip }}
+                            </p>
+                        </div>
+                        <div class="card-footer text-end">
+                            <a href="{% url 'user:edit_address' address.id %}" class=" btn-primary btn-sm">Edit</a>
+                            <form action="{% url 'user:delete_address' address.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {%endfor%}
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">New Address</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="firstName" name="first_name" required pattern="[A-Za-z ]+" title="Only letters and spaces are allowed">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="lastName" name="last_name" required pattern="[A-Za-z ]+" title="Only letters and spaces are allowed">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="buildingName" class="form-label">Building Name</label>
+                            <input type="text" class="form-control" id="buildingName" name="building_name">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="phoneNumber" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="phoneNumber" name="phone_number" required pattern="\d{10,15}" title="Phone number must be between 10 and 15 digits">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emailAddress" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="emailAddress" name="email_address" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="country" class="form-label">Country</label>
+                            <select class="form-select" id="country" name="country" required>
+                                <option selected disabled value="">Choose...</option>
+                                <option value="Country 1">Country 1</option>
+                                <option value="Country 2">Country 2</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addressLine1" class="form-label">Address Line 1 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="addressLine1" name="address_line_1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addressLine2" class="form-label">Address Line 2</label>
+                            <input type="text" class="form-control" id="addressLine2" name="address_line_2">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="townCity" class="form-label">Town/City <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="townCity" name="town_city" required pattern="[A-Za-z ]+" title="Only letters and spaces are allowed">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="district" class="form-label">District</label>
+                                <input type="text" class="form-control" id="district" name="district">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="postcodeZip" class="form-label">Postcode/ZIP <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="postcodeZip" name="postcode_zip" required pattern="\d{5,10}" title="Postcode/ZIP must be between 5 and 10 digits">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+{% endblock %}

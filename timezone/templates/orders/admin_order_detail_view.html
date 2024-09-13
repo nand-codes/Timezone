@@ -1,0 +1,232 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+  {% if messages %}
+  {% for message in messages %}
+      <div class="alert alert-danger">
+          {{ message }}
+      </div>
+  {% endfor %}
+{% endif %}
+            
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 gap-3">
+    
+      <div class="d-flex flex-column justify-content-center">
+        <div class="d-flex align-items-center mb-1">
+          <h5 class="mb-0">Order #{{order.id}}</h5>
+        </div>
+        <p class="mt-1 mb-3">{{order.order_date}}<span id="orderYear"></span></p>
+      </div>
+      <div class="d-flex align-content-center flex-wrap gap-2">
+        <form action="" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+              <select name="status" id="status" class="form-control" {% if form_disabled %}disabled{% endif %}>
+                  <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                  <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                  <option value="Canceled" {% if order.status == 'Canceled' %}selected{% endif %}>Canceled</option>
+              </select>
+          </div>
+              <button class="btn btn-outline-primary delete-order" {% if order.status != 'Pending' %}disabled{%endif%}>Update Order</button>
+
+      </form>
+      
+      </div>
+    </div>
+                    
+    <!-- Order Details Table -->
+    
+    <div class="row">
+      <div class="col-12 col-lg-8">
+        <div class="card mb-6">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title m-0">Order details</h5>
+            <h6 class="m-0"><a href=" javascript:void(0)">Edit</a></h6>
+          </div>
+          <div class="card-datatable table-responsive">
+            <table class="datatables-order-details table">
+              <thead>
+                  <tr>
+                      <th class="w-50">Products</th>
+                      <th>Price</th>
+                      <th>Qty</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for item in order_items %}
+                  <tr>
+                      <td>{{ item.product.product.name }}</td>
+                      <td>{{ item.product.product.price }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>{{ item.price }}</td>
+                      <td>
+                          {% if item.status == 'Delivered' %}
+                          <p style="color: greenyellow;">{{ item.status }}</p>
+                          {% elif item.status == 'Returned' %}
+                          <p style="color: blue;">{{ item.status }}</p>
+                          {% else %}
+                          <p style="color: red;">{{ item.status }}</p>
+                          {% endif %}
+                      </td>
+                      <td>
+                          {% if  item.status == 'return_request' %}
+                          <form method="post" style="display:inline-block;">
+                              {% csrf_token %}
+                              <input type="hidden" name="item_id" value="{{ item.id }}">
+                              <button class="btn btn-outline-success" name="action" value="accept">Accept Return</button>
+                              <button class="btn btn-outline-danger" name="action" value="reject">Reject Return</button>
+                          </form>
+                          {% endif %}
+                      </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+            <div class="d-flex justify-content-end align-items-center m-4 p-1 mb-0 pb-0">
+              <div class="order-calculations">
+                <div class="d-flex justify-content-start gap-4 mb-2">
+                  <span class="w-px-100 text-heading">Subtotal:</span>
+                  <h6 class="mb-0">{{order.total_amount}}</h6>
+                </div>
+                <div class="d-flex justify-content-start gap-4 mb-2">
+                  <span class="w-px-100 text-heading">Discount:</span>
+                  <h6 class="mb-0">00.00</h6>
+                </div>
+                <div class="d-flex justify-content-start gap-4 mb-2">
+                  <span class="w-px-100 text-heading">Tax:</span>
+                  <h6 class="mb-0">00.00</h6>
+                </div>
+                <div class="d-flex justify-content-start gap-4">
+                  <h6 class="w-px-100 mb-0">Total:</h6>
+                  <h6 class="mb-0">{{order.total_amount}}</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-6">
+          <div class="card-header">
+            <h5 class="card-title m-0">Shipping activity</h5>
+          </div>
+          <div class="card-body mt-3">
+            <ul class="timeline pb-0 mb-0">
+              <li class="timeline-item timeline-item-transparent border-primary">
+                <span class="timeline-point timeline-point-primary"></span>
+                <div class="timeline-event">
+                  <div class="timeline-header mb-1">
+                    <h6 class="mb-0">Order was placed (Order ID: #32543)</h6>
+                    <small class="text-muted">Tuesday 11:29 AM</small>
+                  </div>
+                  <p class="mt-1 mb-3">Your order has been placed successfully</p>
+                </div>
+              </li>
+              <li class="timeline-item timeline-item-transparent border-primary">
+                <span class="timeline-point timeline-point-primary"></span>
+                <div class="timeline-event">
+                  <div class="timeline-header mb-1">
+                    <h6 class="mb-0">Pick-up</h6>
+                    <small class="text-muted">Wednesday 11:29 AM</small>
+                  </div>
+                  <p class="mt-1 mb-3">Pick-up scheduled with courier</p>
+                </div>
+              </li>
+              <li class="timeline-item timeline-item-transparent border-primary">
+                <span class="timeline-point timeline-point-primary"></span>
+                <div class="timeline-event">
+                  <div class="timeline-header mb-1">
+                    <h6 class="mb-0">Dispatched</h6>
+                    <small class="text-muted">Thursday 11:29 AM</small>
+                  </div>
+                  <p class="mt-1 mb-3">Item has been picked up by courier</p>
+                </div>
+              </li>
+              <li class="timeline-item timeline-item-transparent border-primary">
+                <span class="timeline-point timeline-point-primary"></span>
+                <div class="timeline-event">
+                  <div class="timeline-header mb-1">
+                    <h6 class="mb-0">Package arrived</h6>
+                    <small class="text-muted">Saturday 15:20 AM</small>
+                  </div>
+                  <p class="mt-1 mb-3">Package arrived at an Amazon facility, NY</p>
+                </div>
+              </li>
+              <li class="timeline-item timeline-item-transparent">
+                <span class="timeline-point timeline-point-primary"></span>
+                <div class="timeline-event">
+                  <div class="timeline-header mb-1">
+                    <h6 class="mb-0">Dispatched for delivery</h6>
+                    <small class="text-muted">Today 14:12 PM</small>
+                  </div>
+                  <p class="mt-1 mb-3">Package has left an Amazon facility, NY</p>
+                </div>
+              </li>
+              <li class="timeline-item timeline-item-transparent border-transparent pb-0">
+                <span class="timeline-point timeline-point-secondary"></span>
+                <div class="timeline-event pb-0">
+                  <div class="timeline-header mb-1">
+                    <h6 class="mb-0">Delivery</h6>
+                  </div>
+                  <p class="mt-1 mb-3">Package will be delivered by tomorrow</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="card mb-6">
+          <div class="card-body">
+            <h5 class="card-title mb-6">Customer details</h5>
+            <div class="d-flex justify-content-start align-items-center mb-6">
+              <div class="avatar me-3">
+                <img src="../../assets/img/avatars/1.png" alt="Avatar" class="rounded-circle">
+              </div>
+              <div class="d-flex flex-column">
+                <a href="app-user-view-account.html">
+                  <h6 class="mb-0">{{user.username}}</h6>
+                </a>
+                <span>Customer ID: #{{user.id}}</span></div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <h6 class="mb-1">Contact info</h6>
+
+            </div>
+            <p class="mb-1">Email: {{user.email}}</p>
+          </div>
+        </div>
+    
+        <div class="card mb-6">
+    
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-1">Shipping address</h5>
+            <h6 class="m-0"><a href=" javascript:void(0)" data-bs-toggle="modal" data-bs-target="#addNewAddress">Edit</a></h6>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ order_address.first_name }} {{ order_address.last_name }}</h5>
+            <p class="card-text">
+                <strong>Building Name:</strong> {{ order_address.building_name }} <br>
+                <strong>Phone Number:</strong> {{ order_address.phone_number }} <br>
+                <strong>Email Address:</strong> {{ order_address.email_address }} <br>
+                <strong>Country:</strong> {{ order_address.country }} <br>
+                <strong>Address Line 1:</strong> {{ order_address.address_line_1 }} <br>
+                <strong>Address Line 2:</strong> {{ order_address.address_line_2 }} <br>
+                <strong>Town/City:</strong> {{ order_address.town_city }} <br>
+                <strong>District:</strong> {{ order_address.district }} <br>
+                <strong>Postcode/ZIP:</strong> {{ order_address.postcode_zip }}
+            </p>
+        </div>
+    
+        </div>
+
+      </div>
+    </div>
+    </div>
+
+
+
+{%endblock%}

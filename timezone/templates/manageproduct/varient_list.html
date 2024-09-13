@@ -1,0 +1,92 @@
+{% extends 'base/admin_base.html' %}
+{%block content%}
+<div class="card-header d-flex border-top rounded-0 flex-wrap py-0 pb-5 pb-md-0">
+  <table class="table" style="margin-bottom: 50px;">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Price</th>
+                <th>Gender</th>
+                <th>Status</th>
+                <th>Change</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ pro.id }}</td>
+                <td>{{ pro.name }}</td>
+                <td>{{ pro.brand }}</td>
+                <td>{{ pro.price }}</td> 
+                <td>{{ pro.gender }}</td>
+
+                {% if pro.status == True %}
+                <td> <span class="text-success"><i class="glyphicon glyphicon-ok-circle"></i> Active</span></td>
+                {% else %}
+                <td><span class="text-danger ms-4"><i class="glyphicon glyphicon-remove-circle"></i> Inactive</span></td>
+                {% endif %}
+                
+                {% if pro.status == True %}
+                <td>
+                    <a href="{% url 'products:product_status' pro.id %}" class="btn btn-status btn-danger "><i class="glyphicon glyphicon-remove-circle"></i> Deactivate</a></td>
+                    {% else %}
+                    <td>  <a href="{% url 'products:product_status' pro.id %}" class="btn btn-status btn-success"><i class="glyphicon glyphicon-ok-circle"></i> Active</a>
+                </td>
+                {%endif%}
+                <td><a class="btn btn-status btn-primary" href="{% url 'products:edit_product' pro.id %}" >Edit</a></td>
+            </tr>
+        </tbody>
+  </table>
+
+
+  <div class="mb-10"></div>
+
+  <div class="ms-center margin-top-79">
+   
+<a href="{% url 'products:add_varient' pro.id %}" class="btn btn-secondary add-new btn-primary waves-effect waves-light" tabindex="0" aria-controls="DataTables_Table_0" type="button"><span><i class="ri-add-line ri-16px me-0 me-sm-1_5"></i><span class="d-none d-sm-inline-block">Add Varient</span></span></a>
+ </div>
+
+ <table class="table">
+  <thead>
+    <tr>
+        <th>Id</th>
+        <th>Colour</th>
+        <th>Image</th>
+        <th>Quantity</th>
+        <th>Status</th>
+        <th>Change</th>
+        <th>Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for i in varients %}
+<tr>
+        <td>{{i.id}}</td>
+        <td>{{i.colour}}</td>
+        <td><img src="{{i.image.url}}" height="60px" width="60px"></td>
+        <td>{{i.quantity}}</td>
+        {% if i.status == True %}
+                <td> <span class="text-success"><i class="glyphicon glyphicon-ok-circle"></i> Active</span></td>
+                {% else %}
+                <td><span class="text-danger ms-4"><i class="glyphicon glyphicon-remove-circle"></i> Inactive</span></td>
+                {% endif %}
+                {% if i.status == True %}
+                <td>
+                    <a href="{% url 'products:varient_status' i.id %}" class="btn btn-status btn-danger "><i class="glyphicon glyphicon-remove-circle"></i> Deactivate</a></td>
+                {% else %}
+                    <td>  <a href="{% url 'products:varient_status' i.id %}" class="btn btn-status btn-success"><i class="glyphicon glyphicon-ok-circle"></i> Active</a>
+                </td>
+                {%endif%}
+
+        <td>  <a class="btn btn-status btn-primary" href="{% url 'products:edit_varient' i.id %}" >Edit</a>
+        </td>
+        <!-- <td>{{i.gender}}</td> -->
+    </tr>
+    
+    {% endfor %}
+    </tbody>
+</table></div>
+
+{%endblock%}

@@ -1,0 +1,259 @@
+{% extends 'base/admin_base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
+<div class="container mt-5">
+    {% if messages %}
+  {% for message in messages %}
+      <div class="alert alert-danger">
+          {{ message }}
+      </div>
+  {% endfor %}
+{% endif %}
+    <div class="col-md mb-6 mb-md-0">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header text-center bg-gradient-primary-to-secondary text-white rounded-top">
+                <h2 class="mb-0">✨ Product Registration ✨</h2>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data" id="product-form">
+                    {% csrf_token %}
+                    <!-- Name Field -->
+                    <div class="form-floating form-floating-outline mb-4">
+                        <input type="text" class="form-control rounded-pill border-0 shadow-sm" id="product-name" placeholder="Product Name" name="name" required="">
+                        <label for="product-name"><i class="ri-edit-box-line"></i> Product Name</label>
+                        <div class="invalid-feedback" id="name-error-message"></div>
+                    </div>
+                    
+                    <!-- Brand Dropdown -->
+                    <div class="form-floating form-floating-outline mb-4">
+                        <select class="form-select rounded-pill border-0 shadow-sm" id="product-brand" name="brand" required="">
+                            <option value="">Select Brand</option>
+                            {% for brand in brands %}
+                                <option value="{{ brand.id }}">{{ brand.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="product-brand"><i class="ri-store-line"></i> Brand</label>
+                        <div class="invalid-feedback" id="brand-error-message"></div>
+                    </div>
+                    
+                    <!-- Category Dropdown -->
+                    <div class="form-floating form-floating-outline mb-4">
+                        <select class="form-select rounded-pill border-0 shadow-sm" id="product-category" name="category" required="">
+                            <option value="">Select Category</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.type }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="product-category"><i class="ri-list-check-2"></i> Category</label>
+                        <div class="invalid-feedback" id="category-error-message"></div>
+                    </div>
+
+                    <!-- Price Field -->
+                    <div class="form-floating form-floating-outline mb-4">
+                        <input type="number" class="form-control rounded-pill border-0 shadow-sm" id="price" placeholder="Price" name="price" required="" min="0">
+                        <label for="price"><i class="ri-edit-box-line"></i> Price</label>
+                        <div class="invalid-feedback" id="price-error-message"></div>
+                    </div>
+                    
+                    <!-- Gender Radios -->
+                    <div class="mb-4">
+                        <label class="d-block form-label"><i class="ri-user-heart-line"></i> Gender</label>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="gender-male" name="gender" class="form-check-input shadow-sm" value="M" required="">
+                            <label class="form-check-label" for="gender-male">Male</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="gender-female" name="gender" class="form-check-input shadow-sm" value="F" required="">
+                            <label class="form-check-label" for="gender-female">Female</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="gender-unisexual" name="gender" class="form-check-input shadow-sm" value="U" required="">
+                            <label class="form-check-label" for="gender-unisexual">Unisexual</label>
+                        </div>
+                        <div class="invalid-feedback" id="gender-error-message"></div>
+                    </div>
+                    
+                    <!-- Description Textarea -->
+                    <div class="form-floating form-floating-outline mb-4">
+                        <textarea class="form-control rounded-3 border-0 shadow-sm" id="product-description" name="description" placeholder="Product Description" rows="3" required=""></textarea>
+                        <label for="product-description"><i class="ri-align-left"></i> Product Description</label>
+                        <div class="invalid-feedback" id="description-error-message"></div>
+                    </div>
+                    
+                    <!-- Product Image Upload and Preview -->
+                    <div class="mb-4">
+                        <label for="product-image" class="form-label"><i class="ri-image-line"></i> Upload Product Image</label>
+                        <input class="form-control shadow-sm" type="file" id="product-image" name="image" required accept="image/*">
+                        <br>
+                        <img id="image-preview" class="img-fluid mt-3" alt="Image Preview">
+                        <br>
+                        <button type="button" class="btn btn-info mt-3" id="crop-button" style="display: none;">Crop Image</button>
+                        <div class="invalid-feedback" id="image-error-message"></div>
+                    </div>
+                    
+                    <!-- Hidden Field for Cropped Image Data -->
+                    <input type="hidden" id="cropped-image-data" name="cropped_image_data">
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary rounded-pill shadow-sm">🚀 Save Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var imageInput = document.getElementById('product-image');
+        var imagePreview = document.getElementById('image-preview');
+        var cropButton = document.getElementById('crop-button');
+        var imageErrorMessage = document.getElementById('image-error-message');
+        var croppedImageDataInput = document.getElementById('cropped-image-data');
+        var cropper;
+        var productForm = document.getElementById('product-form');
+
+        imageInput.addEventListener('change', function () {
+            var file = imageInput.files[0];
+            var allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            var maxSize = 5 * 1024 * 1024; // 5 MB
+
+            if (file) {
+                if (!allowedTypes.includes(file.type)) {
+                    imageInput.value = ''; // Clear the input
+                    imageErrorMessage.textContent = 'Invalid file type. Please select an image (JPG, PNG, GIF).';
+                    imagePreview.style.display = 'none';
+                    cropButton.style.display = 'none';
+                } else if (file.size > maxSize) {
+                    imageInput.value = ''; // Clear the input
+                    imageErrorMessage.textContent = 'File is too large. Please select an image under 5 MB.';
+                    imagePreview.style.display = 'none';
+                    cropButton.style.display = 'none';
+                } else {
+                    imageErrorMessage.textContent = '';
+                    imagePreview.style.display = 'block';
+                    cropButton.style.display = 'block';
+
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        imagePreview.src = e.target.result;
+
+                        // Initialize Cropper.js
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        cropper = new Cropper(imagePreview, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 1,
+                            responsive: true,
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            } else {
+                imageErrorMessage.textContent = 'Please upload an image.';
+                imagePreview.style.display = 'none';
+                cropButton.style.display = 'none';
+            }
+        });
+
+        cropButton.addEventListener('click', function () {
+            if (cropper) {
+                var croppedCanvas = cropper.getCroppedCanvas({
+                    width: 800,
+                    height: 800,
+                });
+                croppedCanvas.toBlob(function (blob) {
+                    var reader = new FileReader();
+                    reader.onloadend = function () {
+                        croppedImageDataInput.value = reader.result;
+                        imagePreview.src = reader.result;
+                    };
+                    reader.readAsDataURL(blob);
+                });
+            }
+        });
+
+        productForm.addEventListener('submit', function (event) {
+            var name = document.getElementById('product-name').value.trim();
+            var brand = document.getElementById('product-brand').value;
+            var category = document.getElementById('product-category').value;
+            var price = parseFloat(document.getElementById('price').value);
+            var gender = document.querySelector('input[name="gender"]:checked');
+            var description = document.getElementById('product-description').value.trim();
+            var image = imageInput.files[0];
+
+            var isValid = true;
+
+            // Validate Name
+            if (name === '') {
+                document.getElementById('name-error-message').textContent = 'Product name is required.';
+                isValid = false;
+            } else {
+                document.getElementById('name-error-message').textContent = '';
+            }
+
+            // Validate Brand
+            if (brand === '') {
+                document.getElementById('brand-error-message').textContent = 'Brand selection is required.';
+                isValid = false;
+            } else {
+                document.getElementById('brand-error-message').textContent = '';
+            }
+
+            // Validate Category
+            if (category === '') {
+                document.getElementById('category-error-message').textContent = 'Category selection is required.';
+                isValid = false;
+            } else {
+                document.getElementById('category-error-message').textContent = '';
+            }
+
+            // Validate Price
+            if (isNaN(price) || price <= 0) {
+                document.getElementById('price-error-message').textContent = 'A valid positive price is required.';
+                isValid = false;
+            } else {
+                document.getElementById('price-error-message').textContent = '';
+            }
+
+            // Validate Gender
+            if (!gender) {
+                document.getElementById('gender-error-message').textContent = 'Gender selection is required.';
+                isValid = false;
+            } else {
+                document.getElementById('gender-error-message').textContent = '';
+            }
+
+            // Validate Description
+            if (description === '') {
+                document.getElementById('description-error-message').textContent = 'Product description is required.';
+                isValid = false;
+            } else {
+                document.getElementById('description-error-message').textContent = '';
+            }
+
+            // Validate Image
+            if (!image) {
+                document.getElementById('image-error-message').textContent = 'Product image is required.';
+                isValid = false;
+            } else {
+                document.getElementById('image-error-message').textContent = '';
+            }
+
+            if (!isValid) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+        });
+    });
+</script>
+
+{%endblock%}

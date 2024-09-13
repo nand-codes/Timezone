@@ -1,0 +1,213 @@
+{% extends "base/admin_base.html" %}
+{% load static %}
+{% block content %}
+  <!-- Content -->
+  <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row gy-4">
+
+      <!-- Congratulations card -->
+      <div class="col-xl-8 col-lg-7 mb-4">
+        <div class="card">
+          <div class="row g-0">
+            <div class="col-md-6 d-flex align-items-center">
+              <div class="card-body">
+                <h4 class="card-title mb-0">Welcome<span class="fw-bold">Admin!</span> 🎉</h4>
+              </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-center align-items-end">
+              <img src="{% static 'img/illustrations/illustration-john-2.png' %}" class="card-img-bottom" alt="View Profile" style="max-width: 100%; height: auto;">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--/ Congratulations card -->
+
+      <!-- Chart card -->
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Order Performance</h5>
+            <div class="btn-group mb-4" role="group" aria-label="Filter by">
+              <button type="button" class="btn btn-primary" onclick="updateChart('day')">Day</button>
+              <button type="button" class="btn btn-primary" onclick="updateChart('month')">Month</button>
+              <button type="button" class="btn btn-primary" onclick="updateChart('year')">Year</button>
+            </div>
+            <div class="chart-container">
+              <canvas id="orderChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--/ Chart card -->
+
+      <!-- Top Products -->
+      <div class="col-xxl-4 col-md-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title m-0">Top Products</h5>
+          </div>
+          <div class="card-body">
+            <ul class="p-0 m-0 list-unstyled">
+              {% for item in top_variants_list %}
+              <li class="d-flex align-items-center mb-4 pb-2">
+                <div class="avatar flex-shrink-0 me-4">
+                  <img src="{{ item.image }}" alt="Product" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-1">{{ item.name }}</h6>
+                    <small class="d-flex align-items-center">
+                      <i class="ri-calendar-line ri-14px"></i>
+                      <span class="ms-2">{{ item.colour }}</span>
+                    </small>
+                  </div>
+                  <div class="badge bg-label-primary rounded-pill">{{ item.total_sold }}</div>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!--/ Top Products -->
+
+      <!-- Top Brands -->
+      <div class="col-xxl-4 col-md-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title m-0 text-success">Top Brands</h5>
+          </div>
+          <div class="card-body">
+            <ul class="p-0 m-0 list-unstyled">
+              {% for brand in top_brands_list %}
+              <li class="d-flex mb-4 pb-1">
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-1">{{ brand.name }}</h6>
+                  </div>
+                  <div class="user-progress d-flex align-items-center gap-3">
+                    <h6 class="mb-0 text-success">+{{ brand.total_sold }}</h6>
+                    <i class="ri-arrow-up-s-line ri-24px text-success"></i>
+                  </div>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!--/ Top Brands -->
+
+      <!-- Top Categories -->
+      <div class="col-xxl-4 col-md-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title m-0 text-success">Top Categories</h5>
+          </div>
+          <div class="card-body">
+            <ul class="p-0 m-0 list-unstyled">
+              {% for category in top_categories_list %}
+              <li class="d-flex mb-4 pb-1">
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                  <div class="me-2">
+                    <h6 class="mb-1">{{ category.name }}</h6>
+                  </div>
+                  <div class="user-progress d-flex align-items-center gap-3">
+                    <h6 class="mb-0 text-success">+{{ category.total_sold }}</h6>
+                    <i class="ri-arrow-up-s-line ri-24px text-success"></i>
+                  </div>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!--/ Top Categories -->
+
+    </div>
+    <!-- Content wrapper -->
+  </div>
+  <!-- / Layout page -->
+
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Initial chart data
+    const dayData = {{ day_data|safe }};
+    const monthData = {{ month_data|safe }};
+    const yearData = {{ year_data|safe }};
+    
+    // Create chart
+    const ctx = document.getElementById('orderChart').getContext('2d');
+    let chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dayData.labels,
+        datasets: [{
+          label: 'Sales',
+          data: dayData.data,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              autoSkip: true,
+              maxTicksLimit: 10
+            }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              autoSkip: true,
+              maxTicksLimit: 5
+            }
+          }
+        },
+        layout: {
+          padding: {
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 10
+          }
+        }
+      }
+    });
+
+    // Update chart function
+    function updateChart(period) {
+      let data;
+      if (period === 'day') {
+        data = dayData;
+      } else if (period === 'month') {
+        data = monthData;
+      } else if (period === 'year') {
+        data = yearData;
+      }
+      
+      chart.data.labels = data.labels;
+      chart.data.datasets[0].data = data.data;
+      chart.update();
+    }
+  </script>
+
+  <style>
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 300px; /* Adjust height to fit within card */
+    }
+    canvas {
+      height: 100% !important; /* Ensures canvas fits within its container */
+      width: 100% !important; /* Ensures canvas fits within its container */
+    }
+  </style>
+{% endblock %}

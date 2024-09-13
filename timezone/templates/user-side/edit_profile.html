@@ -1,0 +1,93 @@
+{% extends 'base/user_base.html' %}
+{% block style %}
+
+<style>
+    body {
+        background-color: #f0f0f0;
+    }
+    .account-sidebar {
+        background-color: #333;
+        padding: 20px;
+        color: #fff;
+    }
+    .account-sidebar a {
+        color: #fff;
+        display: block;
+        margin: 10px 0;
+        text-decoration: none;
+    }
+    .account-sidebar a.logout {
+        color: #f00;
+    }
+    .profile-details {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .btn-custom {
+        background-color: #f00;
+        color: #fff;
+    }
+    .btn-blue {
+        background-color: #007bff;
+        color: #fff;
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 account-sidebar">
+            <h3>Account</h3>
+            <a href="#">Profile</a>
+            <a href="#">Orders</a>
+            <a href="#">Coupons</a>
+            <a href="#">Wallet</a>
+            <a href="#">Addresses</a>
+            <a href="#" class="logout">Logout</a>
+        </div>
+        <div class="col-md-9">
+            <div class="profile-details">
+                <h4>Edit Profile Details</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="first_name">First Name:</label>
+                        <input type="text" class="form-control" value="{{user.first_name}}" name="firstname" id="first_name" placeholder="{{user.first_name}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile_number">Mobile Number:</label>
+                        <input type="number" class="form-control" id="mobile_number" value="{{user_profile.mobile}}" name="phone" placeholder="{{user_profile.mobile}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender:</label>
+                        <select class="form-control" id="gender" value="" name="gender">
+                            <option value="{{user_profile.gender}}">{{user_profile.gender}}</option>
+                            <option value="MEN">MEN</option>
+                            <option value="FEMALE">FEMALE</option>
+                            <option value="Not mention">Not mention</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location:</label>
+                        <input type="text" class="form-control" id="location" value="{{user_profile.location}}" name="location" placeholder="{{user_profile.location}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State:</label>
+                        <input type="text" class="form-control" name="state" id="state" value="{{user_profile.State}}" placeholder="{{user_profile.State}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" class="form-control" id="username" value="{{user.username}}" name="username" placeholder="{{user.username}}">
+                    </div>
+                    <button type="submit" class="btn btn-custom">Save Changes</button>
+                </form>
+                <button class="btn btn-blue mt-3">Change Password</button>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}
