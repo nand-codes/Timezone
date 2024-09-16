@@ -180,6 +180,9 @@ def admin_order_detail_view(request, id):
         return_status = request.POST.get('action')
         item_id = request.POST.get('item_id')
         
+        coupon = order.coupon
+        discount_amount = order.discounted_amount if coupon else Decimal('0.00')
+
         if new_status:
             if new_status == 'Canceled':
                 for item in order_items:
@@ -189,7 +192,7 @@ def admin_order_detail_view(request, id):
                     item.save()
                 
                 order.status = 'Canceled'
-                if order.payment_method == 'razorpay':
+                if order.payment_method in ['Razorpay','wallet']:
                     wallet.balance += Decimal(order.total_amount)
                     wallet.save()
 
@@ -217,13 +220,17 @@ def admin_order_detail_view(request, id):
             item = OrderItem.objects.get(id=item_id)  
             if return_status == 'accept':
                 item.status = 'Returned'
-                wallet.balance += item.price
+                if coupon:
+                    discounted_item_price=(item.price / (order.total_amount + order.discounted_amount)) * order.total_amount
+                else:
+                    discounted_item_price=item.price
+                wallet.balance += discounted_item_price
                 item.product.quantity += item.quantity
                 Transaction.objects.create(
                     wallet=wallet,
                     transaction_type='credit',
                     transation_purpose='refund',
-                    amount=item.price,
+                    amount=discounted_item_price,
                     discription=f"Refund for order #{order.id}"
                     )
                 item.save()

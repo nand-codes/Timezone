@@ -27,7 +27,7 @@ def is_staff_c(user):
     return user.is_staff 
 
 def home(request):
-    obj=Varient.objects.filter(status=True)
+    obj=Varient.objects.filter(status=True)[:6]
     context={
         'obj':obj,
     }

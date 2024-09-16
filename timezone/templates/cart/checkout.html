@@ -49,217 +49,230 @@
       border-color: #28a745 !important;
       box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
   }
+  /* Custom width for desktop view */
+  .wide-container {
+      max-width: 1200px;
+      margin: 0 auto;
+  }
+  /* Extra spacing for a cleaner layout */
+  .section-padding {
+      padding: 2rem 0;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-{% if messages %}
-{% for message in messages %}
-    <div class="alert alert-danger">
-        {{ message }}
-    </div>
-{% endfor %}
-{% endif %}
-<form  method="post">
-  {% csrf_token %}
-  <div class="col-md-9">
-    <h3 class="mb-4 text-center">Select an Address for Delivery</h3>
-    <div class="row">
-      {% for address in addresses %}
-        <div class="col-md-6 mb-4">
-          <div class="card h-100 border-primary address-card" data-id="{{ address.id }}">
-            <div class="card-body">
-              <h5 class="card-title">{{ address.first_name }} {{ address.last_name }}</h5>
-              <p class="card-text">
-                <strong>Building Name:</strong> {{ address.building_name }} <br>
-                <strong>Phone Number:</strong> {{ address.phone_number }} <br>
-                <strong>Email Address:</strong> {{ address.email_address }} <br>
-                <strong>Country:</strong> {{ address.country }} <br>
-                <strong>Address Line 1:</strong> {{ address.address_line_1 }} <br>
-                <strong>Address Line 2:</strong> {{ address.address_line_2 }} <br>
-                <strong>Town/City:</strong> {{ address.town_city }} <br>
-                <strong>District:</strong> {{ address.district }} <br>
-                <strong>Postcode/ZIP:</strong> {{ address.postcode_zip }}
-              </p>
-            </div>
-            <div class="card-footer text-end">
-              <input type="radio" value="{{address.id}}" name="select_address" id="address_{{ address.id }}" class="form-check-input d-none" data-id="{{ address.id }}">
-              <label for="address_{{ address.id }}" class="btn btn-primary btn-sm">Select</label>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-  <div class="coupon-list mb-4" >
-    <h3 class="text-center">Available Coupons</h3>
-    <div class="row">
-        {% for coupon in coupons %}
-        <div class="col-md-4 mb-4">
-            <div class="card border-primary">
-                <div class="card-body">
-                    <h5 class="card-title">{{ coupon.name }}</h5>
-                    <p class="card-text">
-                        <strong>Code:</strong> {{ coupon.code }} <br>
-                        <strong>Discount:</strong> {{ coupon.discount }}% <br>
-                        <strong>Expiry:</strong> {{ coupon.expiry_date|date:"d M Y" }}
-                    </p>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <p>No coupons available at this time.</p>
-        {% endfor %}
-    </div>
-</div>
-
-
-  <section class="checkout_area">
-    <div class="container">
-      <div class="cupon_area">
-        <div class="check_title">
-            <h2>
-                Have a coupon?
-                <a href="#">Click here to enter your code</a>
-            </h2>
-        </div>
-        <input type="text"  id="coupon_code" name="coupon_code" placeholder="Enter coupon code" />
-        <button type="button" class="tp_btn" id="apply_coupon_btn">Apply Coupon</button>
-    </div>
-      <div class="billing_details">
-        <div class="row">
-          <div class="col-lg-8">
-            <h3>Order to different address?</h3>
-            <div class="row contact_form">
-              <div class="col-md-6 form-group p_star">
-                <input type="text" class="form-control" id="first" placeholder="First name" name="first_name" />
-              </div>
-              <div class="col-md-6 form-group p_star">
-                <input type="text" class="form-control" id="last" name="last_name" placeholder="Last name" />
-              </div>
-              <div class="col-md-12 form-group">
-                <input type="text" class="form-control" id="company" name="building" placeholder="Building name" />
-              </div>
-              <div class="col-md-6 form-group p_star">
-                <input type="text" class="form-control" id="number" placeholder="Phone number" name="number" />
-              </div>
-              <div class="col-md-6 form-group p_star">
-                <input type="text" class="form-control" id="email" placeholder="Email Address" name="email" />
-              </div>
-              <div class="col-md-12 form-group p_star">
-                <select class="country_select" name="country">
-                  <option value="India">India</option>
-                  <option value="US">US</option>
-                  <option value="Dubai">Dubai</option>
-                </select>
-              </div>
-              <div class="col-md-12 form-group p_star">
-                <input type="text" class="form-control" id="add1" placeholder="Address line 01" name="add1" />
-              </div>
-              <div class="col-md-12 form-group p_star">
-                <input type="text" class="form-control" id="add2" placeholder="Address line 02" name="add2" />
-              </div>
-              <div class="col-md-12 form-group p_star">
-                <input type="text" class="form-control" id="city" placeholder="City" name="city" />
-              </div>
-              <div class="col-md-12 form-group p_star">
-                <input type="text" class="form-control" id="district" placeholder="District" name="district" />
-              </div>
-              <div class="col-md-12 form-group">
-                <input type="text" class="form-control" id="zip" name="zip" placeholder="Postcode" />
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="order_box">
-              <h2>Your Order</h2>
-              <ul class="list">
-                <li>
-                  <a href="#">Product
-                    <span>Total</span>
-                  </a>
-                </li>
-                {% for products in cart_products %}
-                <li>
-                  <a href="#">{{ products.product.product.name }}
-                    <span class="middle">{{ products.quantity }}</span>
-                    <span class="last">{{ products.total_amount }}</span>
-                  </a>
-                </li>
-                {% endfor %}
-              </ul>
-              <ul class="list list_2">
-                {% if discount %}
-                  <li>
-                      <a href="#">Discount ({{ coupon_code }})
-                          <span>{{ discount }}%</span>
-                      </a>
-                      <a style="color: red;text-decoration: underline;" href="{% url 'cart:remove_coupon' %}">Remove coupon</a>
-                  </li>
-                  
-                  {% endif %}
-                <li>
-                  <a href="#">Subtotal
-                    <span>{{ grand_total }}</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">Shipping
-                    <span style="color: greenyellow;">Limited time free Shipping</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">Total
-                    <span>{{ grand_total }}</span>
-                  </a>
-                </li>
-              </ul>
-              <div class="payment_item">
-                <div class="radion_btn">
-                  <input type="radio" id="f-option5"  name="payment_method" value="cash_on_delivery" />
-                  <label for="f-option5">Cash on delivery</label>
-                  <div class="check"></div>
-                </div>
-                <p>
-                  COD applicable only for cities near Calicut
-                </p>
-              </div>
-              <div class="payment_item active">
-                <div class="radion_btn">
-                  <input type="radio" id="f-option6" name="payment_method" value="razorpay" />
-                  <label for="f-option6">razorpay</label>
-                  <img src="img/product/single-product/card.jpg" alt="" />
-                  <div class="check"></div>
-                </div>
-                <p>
-                  Please send a check to Store Name, Store Street, Store Town,
-                  Store State / County, Store Postcode.
-                </p>
-              </div>
-              <div class="payment_item active">
-                <div class="radion_btn">
-                  <input type="radio" id="f-option7" name="payment_method" value="wallet" />
-                  <label for="f-option7">wallet</label>
-                  <img src="img/product/single-product/card.jpg" alt="" />
-                  <div class="check"></div>
-                </div>
-                <p>
-                  Plese check wallet balance before proceeding order
-                </p>
-              </div>
-              <div class="creat_account">
-                <input type="checkbox" id="f-option4" name="terms_conditions" />
-                <label for="f-option4">I’ve read and accept the </label>
-                <a href="#">terms & conditions*</a>
-              </div>
-              <button type="submit" class="btn_3">Proceed to order</button>
-            </div>  
-          </div>
-        </div>
+<div class="wide-container section-padding">
+  {% if messages %}
+  {% for message in messages %}
+      <div class="alert alert-danger">
+          {{ message }}
       </div>
-    </div>   
-  </section>
-</form>
+  {% endfor %}
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="col-md-9">
+      <h3 class="mb-4 text-center">Select an Address for Delivery</h3>
+      <div class="row">
+        {% for address in addresses %}
+          <div class="col-md-6 mb-4">
+            <div class="card h-100 border-primary address-card" data-id="{{ address.id }}">
+              <div class="card-body">
+                <h5 class="card-title">{{ address.first_name }} {{ address.last_name }}</h5>
+                <p class="card-text">
+                  <strong>Building Name:</strong> {{ address.building_name }} <br>
+                  <strong>Phone Number:</strong> {{ address.phone_number }} <br>
+                  <strong>Email Address:</strong> {{ address.email_address }} <br>
+                  <strong>Country:</strong> {{ address.country }} <br>
+                  <strong>Address Line 1:</strong> {{ address.address_line_1 }} <br>
+                  <strong>Address Line 2:</strong> {{ address.address_line_2 }} <br>
+                  <strong>Town/City:</strong> {{ address.town_city }} <br>
+                  <strong>District:</strong> {{ address.district }} <br>
+                  <strong>Postcode/ZIP:</strong> {{ address.postcode_zip }}
+                </p>
+              </div>
+              <div class="card-footer text-end">
+                <input type="radio" value="{{address.id}}" name="select_address" id="address_{{ address.id }}" class="form-check-input d-none" data-id="{{ address.id }}">
+                <label for="address_{{ address.id }}" class="btn btn-primary btn-sm">Select</label>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Coupon section with a wider layout -->
+    <div class="coupon-list mb-4">
+      <h3 class="text-center">Available Coupons</h3>
+      <div class="row">
+          {% for coupon in coupons %}
+          <div class="col-md-4 mb-4">
+              <div class="card border-primary">
+                  <div class="card-body">
+                      <h5 class="card-title">{{ coupon.name }}</h5>
+                      <p class="card-text">
+                          <strong>Code:</strong> {{ coupon.code }} <br>
+                          <strong>Discount:</strong> {{ coupon.discount }}% <br>
+                          <strong>Expiry:</strong> {{ coupon.expiry_date|date:"d M Y" }}
+                      </p>
+                  </div>
+              </div>
+          </div>
+          {% empty %}
+          <p>No coupons available at this time.</p>
+          {% endfor %}
+      </div>
+    </div>
+
+    <!-- Rest of the template, keep it the same -->
+    <section class="checkout_area">
+      <div class="container">
+        <div class="cupon_area">
+          <div class="check_title">
+              <h2>
+                  Have a coupon?
+                  <a href="#">Click here to enter your code</a>
+              </h2>
+          </div>
+          <input type="text"  id="coupon_code" name="coupon_code" placeholder="Enter coupon code" />
+          <button type="button" class="tp_btn" id="apply_coupon_btn">Apply Coupon</button>
+      </div>
+        <div class="billing_details">
+          <div class="row">
+            <div class="col-lg-8">
+              <h3>Order to different address?</h3>
+              <div class="row contact_form">
+                <div class="col-md-6 form-group p_star">
+                  <input type="text" class="form-control" id="first" placeholder="First name" name="first_name" />
+                </div>
+                <div class="col-md-6 form-group p_star">
+                  <input type="text" class="form-control" id="last" name="last_name" placeholder="Last name" />
+                </div>
+                <div class="col-md-12 form-group">
+                  <input type="text" class="form-control" id="company" name="building" placeholder="Building name" />
+                </div>
+                <div class="col-md-6 form-group p_star">
+                  <input type="text" class="form-control" id="number" placeholder="Phone number" name="number" />
+                </div>
+                <div class="col-md-6 form-group p_star">
+                  <input type="text" class="form-control" id="email" placeholder="Email Address" name="email" />
+                </div>
+                <div class="col-md-12 form-group p_star">
+                  <select class="country_select" name="country">
+                    <option value="India">India</option>
+                    <option value="US">US</option>
+                    <option value="Dubai">Dubai</option>
+                  </select>
+                </div>
+                <div class="col-md-12 form-group p_star">
+                  <input type="text" class="form-control" id="add1" placeholder="Address line 01" name="add1" />
+                </div>
+                <div class="col-md-12 form-group p_star">
+                  <input type="text" class="form-control" id="add2" placeholder="Address line 02" name="add2" />
+                </div>
+                <div class="col-md-12 form-group p_star">
+                  <input type="text" class="form-control" id="city" placeholder="City" name="city" />
+                </div>
+                <div class="col-md-12 form-group p_star">
+                  <input type="text" class="form-control" id="district" placeholder="District" name="district" />
+                </div>
+                <div class="col-md-12 form-group">
+                  <input type="text" class="form-control" id="zip" name="zip" placeholder="Postcode" />
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="order_box">
+                <h2>Your Order</h2>
+                <ul class="list">
+                  <li>
+                    <a href="#">Product
+                      <span>Total</span>
+                    </a>
+                  </li>
+                  {% for products in cart_products %}
+                  <li>
+                    <a href="#">{{ products.product.product.name }}
+                      <span class="middle">{{ products.quantity }}</span>
+                      <span class="last">{{ products.total_amount }}</span>
+                    </a>
+                  </li>
+                  {% endfor %}
+                </ul>
+                <ul class="list list_2">
+                  {% if discount %}
+                    <li>
+                        <a href="#">Discount ({{ coupon_code }})
+                            <span>{{ discount }}%</span>
+                        </a>
+                        <a style="color: red;text-decoration: underline;" href="{% url 'cart:remove_coupon' %}">Remove coupon</a>
+                    </li>
+                    
+                    {% endif %}
+                  <li>
+                    <a href="#">Subtotal
+                      <span>{{ grand_total }}</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">Shipping
+                      <span style="color: greenyellow;">Limited time free Shipping</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">Total
+                      <span>{{ grand_total }}</span>
+                    </a>
+                  </li>
+                </ul>
+                <div class="payment_item">
+                  <div class="radion_btn">
+                    <input type="radio" id="f-option5"  name="payment_method" value="cash_on_delivery" />
+                    <label for="f-option5">Cash on delivery</label>
+                    <div class="check"></div>
+                  </div>
+                  <p>
+                    COD applicable only for cities near Calicut
+                  </p>
+                </div>
+                <div class="payment_item active">
+                  <div class="radion_btn">
+                    <input type="radio" id="f-option6" name="payment_method" value="razorpay" />
+                    <label for="f-option6">razorpay</label>
+                    <img src="img/product/single-product/card.jpg" alt="" />
+                    <div class="check"></div>
+                  </div>
+                  <p>
+                    Please send a check to Store Name, Store Street, Store Town,
+                    Store State / County, Store Postcode.
+                  </p>
+                </div>
+                <div class="payment_item active">
+                  <div class="radion_btn">
+                    <input type="radio" id="f-option7" name="payment_method" value="wallet" />
+                    <label for="f-option7">wallet</label>
+                    <img src="img/product/single-product/card.jpg" alt="" />
+                    <div class="check"></div>
+                  </div>
+                  <p>
+                    Plese check wallet balance before proceeding order
+                  </p>
+                </div>
+                <div class="creat_account">
+                  <input type="checkbox" id="f-option4" name="terms_conditions" />
+                  <label for="f-option4">I’ve read and accept the </label>
+                  <a href="#">terms & conditions*</a>
+                </div>
+                <button type="submit" class="btn_3">Proceed to order</button>
+              </div>  
+            </div>
+          </div>
+        </div>  
+      </div>
+    </section>
+  </form>
+</div>
 
 <script>
 document.getElementById('apply_coupon_btn').addEventListener('click', function() {
@@ -269,17 +282,14 @@ document.getElementById('apply_coupon_btn').addEventListener('click', function()
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}' // Ensure this is correctly populated in your template
+            'X-CSRFToken': '{{ csrf_token }}'
         },
         body: JSON.stringify({ coupon_code: couponCode })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Optionally display a success message
             alert('Coupon applied successfully!');
-
-            // Refresh the page to reflect the updated total and discount
             location.reload();
         } else {
             alert('Failed to apply coupon: ' + data.error);
@@ -287,7 +297,6 @@ document.getElementById('apply_coupon_btn').addEventListener('click', function()
     })
     .catch(error => console.error('Error:', error));
 });
-
 </script>
 
 <script>
@@ -296,16 +305,13 @@ document.getElementById('apply_coupon_btn').addEventListener('click', function()
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
-              'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is passed correctly
+              'X-CSRFToken': '{{ csrf_token }}'
           }
       })
       .then(response => response.json())
       .then(data => {
           if (data.success) {
-              // Optionally display a success message
               alert('Coupon removed successfully!');
-  
-              // Reload the page to reflect the updated total and removed discount
               location.reload();
           } else {
               alert('Failed to remove coupon: ' + data.error);
@@ -313,6 +319,5 @@ document.getElementById('apply_coupon_btn').addEventListener('click', function()
       })
       .catch(error => console.error('Error:', error));
   });
-  </script>
-
+</script>
 {% endblock %}

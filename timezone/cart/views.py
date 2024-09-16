@@ -234,62 +234,67 @@ def checkout(request):
                         )
   
         if payment_method == 'razorpay':
-            razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_SECRET_KEY))
-            amount = int(grand_total * 100) 
-            razorpay_order = razorpay_client.order.create({
-                "amount": amount,
-                "currency": "INR",
-                "payment_capture": "1"
-            })
-            order = Orders.objects.create(
-                user=user,
-                total_amount=grand_total,
-                status='Failed',
-                payment_status='Failed',
-                payment_method='Razorpay',
-                coupon= coupon_code,
-                discounted_amount = discounted_amount
+            print(total_amount,"hello")
+            if grand_total<=0:
+                messages.error(request,"Amount is too low for razorpay .You can go for cash on delivery or wallet")
+                return redirect('cart:checkout')
+            else:
+                razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_SECRET_KEY))
+                amount = int(grand_total * 100) 
+                razorpay_order = razorpay_client.order.create({
+                    "amount": amount,
+                    "currency": "INR",
+                    "payment_capture": "1"
+                })
+                order = Orders.objects.create(
+                    user=user,
+                    total_amount=grand_total,
+                    status='Failed',
+                    payment_status='Failed',
+                    payment_method='Razorpay',
+                    coupon= coupon_code,
+                    discounted_amount = discounted_amount
+                    
+                )
+
+                for item in cart:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item.varient,
+                        quantity=item.quantity,
+                        price=item.varient.product.price
+                    )
+                    item.varient.quantity-= item.quantity
+                    item.varient.save()
+                Orderaddress.objects.create(
+                        order=order,
+                        first_name=selected_address.first_name,
+                        last_name=selected_address.last_name,
+                        building_name=selected_address.building_name,
+                        phone_number=selected_address.phone_number,
+                        email_address=selected_address.email_address,
+                        country=selected_address.country,
+                        address_line_1=selected_address.address_line_1,
+                        address_line_2=selected_address.address_line_2,
+                        town_city=selected_address.town_city,
+                        district=selected_address.district,
+                        postcode_zip=selected_address.postcode_zip
+                    )
                 
-            )
+                request.session['order_id'] = order.id
+                request.session['razorpay_order_id'] = razorpay_order['id']
+                request.session['total_amount'] = amount
 
-            for item in cart:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.varient,
-                    quantity=item.quantity,
-                    price=item.varient.product.price
-                )
-                item.varient.quantity-= item.quantity
-                item.varient.save()
-            Orderaddress.objects.create(
-                    order=order,
-                    first_name=selected_address.first_name,
-                    last_name=selected_address.last_name,
-                    building_name=selected_address.building_name,
-                    phone_number=selected_address.phone_number,
-                    email_address=selected_address.email_address,
-                    country=selected_address.country,
-                    address_line_1=selected_address.address_line_1,
-                    address_line_2=selected_address.address_line_2,
-                    town_city=selected_address.town_city,
-                    district=selected_address.district,
-                    postcode_zip=selected_address.postcode_zip
-                )
-            
-            request.session['order_id'] = order.id
-            request.session['razorpay_order_id'] = razorpay_order['id']
-            request.session['total_amount'] = amount
-
-            context = {
-                'razorpay_order_id': razorpay_order['id'],
-                'razorpay_key': settings.RAZORPAY_KEY_ID,
-                'amount': amount,
-                'currency': 'INR',
-                'order': order,
-            }
-            cart.delete()
-            request.session.pop('coupon_code', None)
-            return render(request, 'cart/razorpay_payment.html', context)
+                context = {
+                    'razorpay_order_id': razorpay_order['id'],
+                    'razorpay_key': settings.RAZORPAY_KEY_ID,
+                    'amount': amount,
+                    'currency': 'INR',
+                    'order': order,
+                }
+                cart.delete()
+                request.session.pop('coupon_code', None)
+                return render(request, 'cart/razorpay_payment.html', context)
         elif payment_method == 'wallet':
             if wallet.balance < grand_total:
                 messages.error(request,"insufficiant account in wallet")

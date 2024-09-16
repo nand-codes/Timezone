@@ -133,9 +133,14 @@ def shop(request):
     search = request.GET.get('search', '')
     if search:
         obj = obj.filter(product__name__icontains=search)
+
+    pagination=Paginator(obj,9)
+    page=request.GET.get('page')
+    page_obj=pagination.get_page(page)
+
     no_product=not obj
     context = {
-        'obj': obj,
+        'obj': page_obj,
         'no_product':no_product,
         'categories': categories,
         'brands': brands,
@@ -183,14 +188,13 @@ def add_varient(request,id):
     product=Products.objects.get(id=id)
     variets=Varient.objects.filter(product=product)
     if request.method == 'POST':
-        product=product,
         quantity=request.POST.get('quantity')
         image=request.FILES.get('image')
         colour=request.POST.get('colour')
         image_1=request.FILES.get('image_1')
         image_2=request.FILES.get('image_2')
         image_3=request.FILES.get('image_3')
-        if variets.objects.filter(colour=colour).exist():
+        if variets.filter(colour=colour).exists():
             messages.error(request,"varient already exist")
             return redirect('products:add_varient')
         obj=Varient.objects.create(product=product,quantity=quantity,colour_id= colour,image=image,image_1=image_1,image_2=image_2,image_3=image_3)
