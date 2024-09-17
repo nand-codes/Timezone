@@ -80,10 +80,10 @@
         <!-- Sidebar -->
         <div class="col-md-3 sidebar">
             <h4>Account</h4>
-            <a href="{% url 'user:profile' %}" class="active">Profile</a>
-            <a href="#">Orders</a>
-            <a href="#">Coupons</a>
-            <a href="#">Wallet</a>
+            <a href="{% url 'user:profile' %}" >Profile</a>
+            <a href="{% url 'orders:orders' %}" class="active">Orders</a>
+            <a href="{% url 'user:coupons' %}">Coupons</a>
+            <a href="{% url 'user:wallet' %}">Wallet</a>
             <a href="{% url 'user:address' %}">Addresses</a>
             <a href="{% url 'login:logouts' %}" class="logout">Logout</a>
         </div>

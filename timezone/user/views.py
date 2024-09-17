@@ -1,12 +1,18 @@
 from django.shortcuts import render,get_object_or_404,redirect
 from django.contrib.auth.models import User
 from .models import *
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from django.core.paginator import Paginator,PageNotAnInteger, EmptyPage
+from cart.models import Coupon
+from django.utils import timezone
 
 # Create your views here.
 
+def is_staff_c(user):
+    return user.is_staff 
 
+@login_required(login_url='login:admin_login')
+@user_passes_test(is_staff_c,'login:home')
 def users(request):
     search_query = request.GET.get('search', '')
     if search_query:
@@ -47,7 +53,6 @@ def edit_profile(request):
     if request.method == 'POST':
         firstname=request.POST.get('firstname')
         phone=request.POST.get('phone')
-        print(phone)
         gender=request.POST.get('gender')
         location=request.POST.get('location')
         state=request.POST.get('state')
@@ -63,6 +68,7 @@ def edit_profile(request):
 
         user.save()
         user_profile.save()
+        return redirect('user:profile')
 
 
     return render(request,'user-side/edit_profile.html',context)
@@ -87,8 +93,6 @@ def address(request):
         district = request.POST.get('district')
         postcode_zip = request.POST.get('postcode_zip')
         user=request.user
-        print(first_name,"hsjdgf")
-        print(country)
 
         address = Address(
             user=user,
@@ -167,3 +171,16 @@ def referral_view(request):
     }
 
     return render(request, 'referral.html', context)
+
+@login_required
+def coupons(request):
+    current_time = timezone.now()
+    coupons = Coupon.objects.filter(
+        active=True, 
+        valid_from__lte=current_time,
+        valid_to__gte=current_time
+    )
+    context={
+        'coupons':coupons
+    }
+    return render(request,'user-side/coupons.html',context)

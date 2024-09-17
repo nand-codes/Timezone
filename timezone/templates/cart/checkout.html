@@ -114,7 +114,7 @@
                       <p class="card-text">
                           <strong>Code:</strong> {{ coupon.code }} <br>
                           <strong>Discount:</strong> {{ coupon.discount }}% <br>
-                          <strong>Expiry:</strong> {{ coupon.expiry_date|date:"d M Y" }}
+                          <strong>Expiry:</strong> {{ coupon.valid_to|date:"d M Y" }}
                       </p>
                   </div>
               </div>

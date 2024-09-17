@@ -130,6 +130,11 @@
                 <div data-i18n="Brand_list">Brand list</div>
               </a>
             </li>
+            <li class="menu-item {% if request.resolver_match.url_name == 'category' %}active{% endif %}">
+              <a href="{% url 'products:colour' %}" class="menu-link">
+                <div data-i18n="Colour list">Colour list</div>
+              </a>
+            </li>
           </ul>
         </li>
             <li class="menu-item {% if request.resolver_match.url_name == 'admin_view_order' %}active{% endif %}">

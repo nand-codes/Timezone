@@ -1,4 +1,4 @@
-{%extends 'base/user_base.html' %}
+{% extends 'base/user_base.html' %}
 
 {% block style %}
 <style>
@@ -9,7 +9,6 @@
     .sidebar {
         background-color: #343a40;
         color: #ffffff;
-        min-height: 100vh;
         padding: 20px;
         border-radius: 10px;
     }
@@ -49,14 +48,16 @@
         margin-bottom: 15px;
         font-size: 16px;
     }
-    .btn-edit {
-        background-color: #ff416c;
-        border: none;
-        color: white;
+    .btn-edit, .btn-change-password {
         padding: 10px 20px;
         border-radius: 25px;
         font-size: 14px;
         font-weight: bold;
+    }
+    .btn-edit {
+        background-color: #ff416c;
+        border: none;
+        color: white;
     }
     .btn-edit:hover {
         background-color: #ff224c;
@@ -65,65 +66,61 @@
         background-color: #007bff;
         border: none;
         color: white;
-        padding: 10px 20px;
-        border-radius: 25px;
-        font-size: 14px;
-        font-weight: bold;
     }
     .btn-change-password:hover {
         background-color: #0056b3;
     }
+    .invite-section {
+        margin-top: 30px;
+    }
 </style>
-
-
-
-{%endblock%}
-
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3 sidebar">
+        <div class="col-lg-3 col-md-4 sidebar">
             <h4>Account</h4>
             <a href="{% url 'user:profile' %}" class="active">Profile</a>
             <a href="{% url 'orders:orders' %}">Orders</a>
-            <a href="{% url 'cart:coupon_management' %}">Coupons</a>
+            <a href="{% url 'user:coupons' %}">Coupons</a>
             <a href="{% url 'user:wallet' %}">Wallet</a>
             <a href="{% url 'user:address' %}">Addresses</a>
             <a href="{% url 'login:logouts' %}" class="logout">Logout</a>
-            <a href="{% url 'login:change_password' %}" >Change Password</button>
         </div>
 
         <!-- Profile Details -->
-        <div class="col-md-9 p-4">
+        <div class="col-lg-9 col-md-8 p-4">
             <div class="profile-details">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5>Profile Details</h5>
                 </div>
-                <p><strong>First name:</strong>{{user.first_name}}</p>
-                <p><strong>Mobile Number:</strong>{{user_profile.mobile}}</p>
-                <p><strong>Email ID:</strong>{{user.email}}</p>
-                <p><strong>Gender:</strong>{{user_profile.gender}}</p>
-                <p><strong>Location:</strong>{{user_profile.location}}</p>
-                <p><strong>State:</strong>{{user_profile.State}}</p>
-                <p><strong>Userame:</strong>{{user.username}}</p>
-                <a href="{% url 'user:edit_profile' %}"  class="btn btn-edit mt-3">Edit</a>
+                <p><strong>First Name:</strong> {{ user.first_name }}</p>
+                <p><strong>Mobile Number:</strong> {{ user_profile.mobile }}</p>
+                <p><strong>Email ID:</strong> {{ user.email }}</p>
+                <p><strong>Gender:</strong> {{ user_profile.gender }}</p>
+                <p><strong>Location:</strong> {{ user_profile.location }}</p>
+                <p><strong>State:</strong> {{ user_profile.state }}</p>
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <a href="{% url 'user:edit_profile' %}" class="btn btn-edit mt-3">Edit</a>
             </div>
-            <div>
+
+            <!-- Invite Section -->
+            <div class="invite-section">
                 <h2>Invite your friends!</h2>
                 <p>Share your referral code with your friends:</p>
-                <h3>{{ user_profile.referral_code }}</h3>
-        
-                <a href="https://wa.me/?text=Use%20my%20referral%20code%20{{ user_profile.referral_code }}%20to%20sign%20up%20on%20our%20site!" target="_blank">
-                    <i class="fab fa-whatsapp" style="font-size:50px;color:#25D366;"></i>
-                </a>
-                <i class="fas fa-copy" style="font-size:40px;color:grey;cursor:pointer; margin-left: 20px;" onclick="copyToClipboard()"></i>
+                <h3 id="referral-code">{{ user_profile.referral_code }}</h3>
+                
+                <!-- Social Media & Copy Referral Code -->
+                <div class="d-flex align-items-center">
+                    <a href="https://wa.me/?text=Use%20my%20referral%20code%20{{ user_profile.referral_code }}%20to%20sign%20up%20on%20our%20site!" target="_blank">
+                        <i class="fab fa-whatsapp" style="font-size:50px;color:#25D366;"></i>
+                    </a>
+                    <i class="fas fa-copy" style="font-size:40px;color:grey;cursor:pointer;margin-left:20px;" onclick="copyToClipboard()"></i>
+                </div>
             </div>
         </div>
-
-
-
     </div>
 </div>
 
@@ -131,26 +128,15 @@
 
 <script>
     function copyToClipboard() {
-        // Get the referral code text
         var referralCode = document.getElementById("referral-code").innerText;
-        
-        // Create a temporary textarea element to hold the text
         var textarea = document.createElement("textarea");
         textarea.value = referralCode;
-        
-        // Append the textarea to the document
         document.body.appendChild(textarea);
-        
-        // Select the text and copy it to the clipboard
         textarea.select();
         document.execCommand("copy");
-        
-        // Remove the temporary textarea
         document.body.removeChild(textarea);
-    
-        // Optionally, show an alert or a message to the user
         alert("Referral code copied to clipboard!");
     }
-    </script>
-    
-{%endblock%}
+</script>
+
+{% endblock %}

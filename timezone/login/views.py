@@ -109,6 +109,7 @@ def admin_page(request):
     .annotate(total_sold=Sum('quantity'))  
     .order_by('-total_sold')[:5]  
     )
+    print(top_categories)
 
     top_categories_list = [
     {
@@ -118,7 +119,14 @@ def admin_page(request):
     for item in top_categories
     ]
 
-
+    categories_data = {
+        'labels': [Category.objects.get(id=item['product__product__Category']).type for item in top_categories],
+        'data': [item['total_sold'] for item in top_categories]
+    }
+    brands_data = {
+        'labels': [Brand.objects.get(id=item['product__product__brand']).name for item in top_brands],
+        'data': [item['total_sold'] for item in top_brands]
+    }
 
 
     context = {
@@ -128,6 +136,8 @@ def admin_page(request):
         'top_variants_list': top_variants_list,
         'top_brands_list': top_brands_list,
         'top_categories_list': top_categories_list,
+        'categories_data': categories_data,
+        'brands_data': brands_data,
     }
 
     return render(request, 'login/admin-home.html', context)

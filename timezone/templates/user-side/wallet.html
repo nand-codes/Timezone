@@ -67,6 +67,66 @@
         justify-content: center;
         margin-top: 20px;
     }
+    .transaction-history-table {
+    background-color: #ffffff;
+    color: #333333;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    margin: 0;
+    width: 100%;
+}
+
+.transaction-history-table thead {
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+.transaction-history-table tbody tr {
+    background-color: #f8f9fa;
+}
+
+.transaction-history-table tbody tr:nth-child(even) {
+    background-color: #e9ecef;
+}
+
+.transaction-history-table td, 
+.transaction-history-table th {
+    padding: 12px;
+    text-align: center;
+    vertical-align: middle;
+    border-color: #dee2e6;
+}
+
+.transaction-history-table td {
+    font-size: 0.95rem;
+}
+
+.transaction-history-table th {
+    font-weight: bold;
+}
+
+.card-header {
+    font-weight: bold;
+    font-size: 18px;
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.card-body {
+    padding: 0; /* Reset padding for the table */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #e9ecef;
+}
+
 
 </style>
 {% endblock %}
@@ -77,10 +137,10 @@
         <!-- Sidebar -->
         <div class="col-md-3 sidebar">
             <h4>Account</h4>
-            <a href="{% url 'user:profile' %}" class="active">Profile</a>
+            <a href="{% url 'user:profile' %}" >Profile</a>
             <a href="{% url 'orders:orders' %}">Orders</a>
-            <a href="{% url 'cart:coupon_management' %}">Coupons</a>
-            <a href="{% url 'user:wallet' %}">Wallet</a>
+            <a href="{% url 'user:coupons' %}">Coupons</a>
+            <a href="{% url 'user:wallet' %}" class="active">Wallet</a>
             <a href="{% url 'user:address' %}">Addresses</a>
             <a href="{% url 'login:logouts' %}" class="logout">Logout</a>
         </div>
@@ -111,7 +171,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <table class="table table-striped table-bordered transaction-history-table mb-0">
-                                    <thead class="thead-dark">
+                                    <thead>
                                         <tr>
                                             <th>#</th>
                                             <th>Transaction Type</th>

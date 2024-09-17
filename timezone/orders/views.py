@@ -3,7 +3,7 @@ from user.models import User,UserProfile
 from .models import Orders,OrderItem,Orderaddress
 from cart.models import Coupon
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from user.models import Wallet,Transaction
 from decimal import Decimal
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -25,6 +25,9 @@ from django.http import JsonResponse
 from datetime import date
 
 # Create your views here.
+def is_staff_c(user):
+    return user.is_staff 
+
 
 @login_required(login_url='login:login')
 def orders(request):
@@ -139,7 +142,8 @@ def order_details(request, id):
     return render(request, 'orders/order_details.html', context)
 
 
-
+@login_required(login_url='login:admin_login')
+@user_passes_test(is_staff_c,'login:home')
 def admin_view_order(request):
     search_query=request.GET.get('search','')
     if search_query:
@@ -167,7 +171,8 @@ def admin_view_order(request):
 
 
 
-
+@login_required(login_url='login:admin_login')
+@user_passes_test(is_staff_c,'login:home')
 def admin_order_detail_view(request, id):
     order = get_object_or_404(Orders, id=id)
     order_items = OrderItem.objects.filter(order=order)
@@ -260,7 +265,8 @@ def admin_order_detail_view(request, id):
 
 
 
-
+@login_required(login_url='login:admin_login')
+@user_passes_test(is_staff_c,'login:home')
 def sales_report(request):
     orders = Orders.objects.all()
 

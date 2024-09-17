@@ -84,6 +84,11 @@ h2 {
         <div class="logo">
             <img src="{% static 'assets/img/logo/logo.png' %}" alt="Timezone Logo">
         </div>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning">{{message}}</div>
+        {%endfor%}
+        {%endif%}
         <h2>Admin Sign In</h2>
         <form method="POST">
             {% csrf_token %}

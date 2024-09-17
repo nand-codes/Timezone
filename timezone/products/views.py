@@ -118,14 +118,16 @@ def shop(request):
     # Apply category filter
     if filter_category:
         obj = obj.filter(product__Category__id=filter_category)
+        obj = obj.order_by(sort_by)
 
     # Apply brand filter
     if filter_brand:
         obj = obj.filter(product__brand__id=filter_brand)
+        obj = obj.order_by(sort_by)
 
     # Apply color filter with case-insensitive match
     if filter_colour:
-        obj = obj.filter(colour__colour__iexact=filter_colour)
+        obj = obj.filter(Colour__colour__iexact=filter_colour)
 
 
     obj = obj.order_by(sort_by)
@@ -133,6 +135,7 @@ def shop(request):
     search = request.GET.get('search', '')
     if search:
         obj = obj.filter(product__name__icontains=search)
+        obj = obj.order_by(sort_by)
 
     pagination=Paginator(obj,9)
     page=request.GET.get('page')
@@ -265,11 +268,12 @@ def brand_list(request):
     return render(request,'manageproduct/brands.html',{'brand':brand})
 
 def colour(request):
-    colour=Colour.objects.all()
+    colours=Colour.objects.all()
     if request.method == 'POST':
         new_colour = request.POST.get('colour')
         Colour.objects.create(colour=new_colour)
-    return render(request,'manageproduct/colours.html',{'colour':colour})
+        return redirect('products:colour')
+    return render(request,'manageproduct/colours.html',{'colours':colours})
 
 def colour_edit(request, id):
     if request.method == 'POST':

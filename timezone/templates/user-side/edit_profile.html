@@ -5,30 +5,51 @@
     body {
         background-color: #f0f0f0;
     }
+
     .account-sidebar {
         background-color: #333;
         padding: 20px;
         color: #fff;
+        min-height: 100vh;
     }
+
+    .account-sidebar h4 {
+        color: #fff;
+        margin-bottom: 20px;
+    }
+
     .account-sidebar a {
         color: #fff;
         display: block;
         margin: 10px 0;
         text-decoration: none;
     }
+
+    .account-sidebar a.active {
+        font-weight: bold;
+    }
+
     .account-sidebar a.logout {
         color: #f00;
     }
+
     .profile-details {
         background-color: #fff;
-        padding: 20px;
+        padding: 30px;
         border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
     }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
     .btn-custom {
         background-color: #f00;
         color: #fff;
     }
+
     .btn-blue {
         background-color: #007bff;
         color: #fff;
@@ -40,16 +61,21 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-3 account-sidebar">
-            <h3>Account</h3>
-            <a href="#">Profile</a>
-            <a href="#">Orders</a>
-            <a href="#">Coupons</a>
-            <a href="#">Wallet</a>
-            <a href="#">Addresses</a>
-            <a href="#" class="logout">Logout</a>
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-md-4 col-sm-12 mb-4">
+            <div class="account-sidebar">
+                <h4>Account</h4>
+                <a href="{% url 'user:profile' %}" class="active">Profile</a>
+                <a href="{% url 'orders:orders' %}">Orders</a>
+                <a href="{% url 'user:coupons' %}">Coupons</a>
+                <a href="{% url 'user:wallet' %}">Wallet</a>
+                <a href="{% url 'user:address' %}">Addresses</a>
+                <a href="{% url 'login:logouts' %}" class="logout">Logout</a>
+            </div>
         </div>
-        <div class="col-md-9">
+
+        <!-- Profile Details -->
+        <div class="col-lg-9 col-md-8 col-sm-12">
             <div class="profile-details">
                 <h4>Edit Profile Details</h4>
                 <form method="post">
@@ -64,7 +90,7 @@
                     </div>
                     <div class="form-group">
                         <label for="gender">Gender:</label>
-                        <select class="form-control" id="gender" value="" name="gender">
+                        <select class="form-control" id="gender" name="gender">
                             <option value="{{user_profile.gender}}">{{user_profile.gender}}</option>
                             <option value="MEN">MEN</option>
                             <option value="FEMALE">FEMALE</option>
@@ -85,9 +111,9 @@
                     </div>
                     <button type="submit" class="btn btn-custom">Save Changes</button>
                 </form>
-                <button class="btn btn-blue mt-3">Change Password</button>
+                <a href="{% url 'login:change_password' %}" class="btn btn-blue mt-3">Change Password</a>
             </div>
         </div>
     </div>
 </div>
-{%endblock%}
+{% endblock %}

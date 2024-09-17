@@ -71,59 +71,36 @@
       </div>
       <!--/ Top Products -->
 
-      <!-- Top Brands -->
-      <div class="col-xxl-4 col-md-6 mb-4">
-        <div class="card h-100">
-          <div class="card-header d-flex align-items-center justify-content-between">
-            <h5 class="card-title m-0 text-success">Top Brands</h5>
-          </div>
-          <div class="card-body">
-            <ul class="p-0 m-0 list-unstyled">
-              {% for brand in top_brands_list %}
-              <li class="d-flex mb-4 pb-1">
-                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                  <div class="me-2">
-                    <h6 class="mb-1">{{ brand.name }}</h6>
-                  </div>
-                  <div class="user-progress d-flex align-items-center gap-3">
-                    <h6 class="mb-0 text-success">+{{ brand.total_sold }}</h6>
-                    <i class="ri-arrow-up-s-line ri-24px text-success"></i>
-                  </div>
-                </div>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </div>
-      <!--/ Top Brands -->
-
-      <!-- Top Categories -->
-      <div class="col-xxl-4 col-md-6 mb-4">
+      <!-- Top Categories Chart -->
+      <div class="col-xxl-6 col-md-6 mb-4">
         <div class="card h-100">
           <div class="card-header d-flex align-items-center justify-content-between">
             <h5 class="card-title m-0 text-success">Top Categories</h5>
           </div>
           <div class="card-body">
-            <ul class="p-0 m-0 list-unstyled">
-              {% for category in top_categories_list %}
-              <li class="d-flex mb-4 pb-1">
-                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                  <div class="me-2">
-                    <h6 class="mb-1">{{ category.name }}</h6>
-                  </div>
-                  <div class="user-progress d-flex align-items-center gap-3">
-                    <h6 class="mb-0 text-success">+{{ category.total_sold }}</h6>
-                    <i class="ri-arrow-up-s-line ri-24px text-success"></i>
-                  </div>
-                </div>
-              </li>
-              {% endfor %}
-            </ul>
+            <div class="chart-container">
+              <canvas id="categoriesChart"></canvas>
+            </div>
           </div>
         </div>
       </div>
-      <!--/ Top Categories -->
+      <!--/ Top Categories Chart -->
+
+
+      <!-- Top Brands Chart -->
+      <div class="col-xxl-6 col-md-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title m-0 text-success">Top Brands</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="brandsChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--/ Top Brands Chart -->
 
     </div>
     <!-- Content wrapper -->
@@ -197,6 +174,65 @@
       chart.data.datasets[0].data = data.data;
       chart.update();
     }
+  </script>
+   <script>
+    // Data passed from backend
+    const categoriesData = {{ categories_data|safe }};
+    const brandsData = {{ brands_data|safe }};
+    
+    // Create categories chart
+    const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+    new Chart(categoriesCtx, {
+      type: 'bar',
+      data: {
+        labels: categoriesData.labels,
+        datasets: [{
+          label: 'Total Sold',
+          data: categoriesData.data,
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            beginAtZero: true,
+          },
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Create brands chart
+    const brandsCtx = document.getElementById('brandsChart').getContext('2d');
+    new Chart(brandsCtx, {
+      type: 'bar',
+      data: {
+        labels: brandsData.labels,
+        datasets: [{
+          label: 'Total Sold',
+          data: brandsData.data,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            beginAtZero: true,
+          },
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
   </script>
 
   <style>

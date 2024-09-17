@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404,redirect,HttpResponse
 from .models import Wishlist,Varient,Cart,Coupon
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from django.http import  JsonResponse
 from user.models import Address,Wallet
 from orders.models import Orderaddress,Orders,OrderItem
@@ -15,6 +15,9 @@ from orders.models import Orders
 from django.views.decorators.cache import never_cache,cache_control
 
 # Create your views here.
+def is_staff_c(user):
+    return user.is_staff 
+
 
 @login_required(login_url='login:login')
 def wishlist(request):
@@ -526,7 +529,8 @@ def remove_cart(request, id):
     return redirect('cart:cart')
 
 
-
+@login_required(login_url='login:admin_login')
+@user_passes_test(is_staff_c,'login:home')
 def coupon_management(request):
     coupons = Coupon.objects.all()
     if request.method == "POST":

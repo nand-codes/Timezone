@@ -14,7 +14,7 @@
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0">
-                    {% for i in colour %}
+                    {% for i in colours %}
                     <tr>
                         <td>{{ i.id }}</td>
                         <td>{{ i.colour }}</td>
@@ -47,8 +47,12 @@
                         <div class="col-12 fv-plugins-icon-container">
                             <div class="input-group input-group-merge">
                                 <div class="form-floating form-floating-outline">
-                                    <input id="modalAddColor" name="colour" class="form-control credit-card-mask" type="text"
-                                        placeholder="Color name" aria-describedby="modalAddColor2">
+                                    <input id="modalEditColor" name="colour" class="form-control" type="text"
+       placeholder="Color name" aria-describedby="modalAddColor2"
+       required pattern="^[A-Za-z]+$"
+       title="Please enter only letters, without spaces or special characters."
+       maxlength="30">
+
                                     <label for="modalAddColor">Color name</label>
                                     <div class="invalid-feedback" id="add-color-error-message"></div>
                                 </div>
@@ -79,8 +83,11 @@
                         <div class="col-12 fv-plugins-icon-container">
                             <div class="input-group input-group-merge">
                                 <div class="form-floating form-floating-outline">
-                                    <input id="modalEditColor" name="colour" class="form-control credit-card-mask" type="text"
-                                        placeholder="Color name">
+                                    <input id="modalAddColor" name="colour" class="form-control" type="text" 
+                     placeholder="Color name" aria-describedby="modalAddColor2" 
+                     required pattern="^[A-Za-z]+$" 
+                     title="Please enter only letters, without spaces or special characters."
+                    oninput="this.value = this.value.trim();" maxlength="30">
                                     <label for="modalEditColor">Color name</label>
                                     <div class="invalid-feedback" id="edit-color-error-message"></div>
                                 </div>
@@ -150,4 +157,9 @@
             });
         });
     </script>
+    <script>
+        document.getElementById("modalAddColor").addEventListener("input", function() {
+            this.value = this.value.replace(/\s+/g, '');  // Remove any spaces as the user types
+        });
+        </script>
 {% endblock %}
