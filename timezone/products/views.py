@@ -261,7 +261,7 @@ def brand_list(request):
         if Brand.objects.filter(name__iexact=new_brand):
             messages.error(request,"brand already exist")
             return redirect('products:brand_list')
-        Brand.objects.create(brand=new_brand)  
+        Brand.objects.create(name=new_brand)  
     return render(request,'manageproduct/brands.html',{'brand':brand})
 
 def colour(request):
