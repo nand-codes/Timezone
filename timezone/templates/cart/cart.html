@@ -35,7 +35,7 @@
                             </div>
                         </td>
                         <td>
-                            <h5 class="item_price">{{ item.product.product.price }}</h5>
+                            <h5 class="item_price">{{ item.product.product.get_discounted_price }}</h5>
                         </td>
                         <td>
                             <div class="product_count">
@@ -99,7 +99,7 @@
 $(document).ready(function() {
     // Function to calculate the total for a specific row
     function calculateRowTotal($row) {
-        var quantity = $row.find('.input-number').val();
+        var quantity = parseInt($row.find('.input-number').val());
         var price = parseFloat($row.find('.item_price').text());
         var totalAmount = quantity * price;
         $row.find('.total-amount').text(totalAmount.toFixed(2));
@@ -123,8 +123,11 @@ $(document).ready(function() {
     $(document).on('click', '.increment-btn', function() {
         var $input = $(this).siblings('.input-number');
         var currentVal = parseInt($input.val());
-        if (!isNaN(currentVal) && currentVal < parseInt($input.attr('max'))) {
-            $input.val(currentVal).trigger('change');
+        var maxVal = parseInt($input.attr('max')+1);
+
+        if (!isNaN(currentVal) && currentVal < maxVal) {
+            $input.val(currentVal);  // Increment the value by 1
+            $input.trigger('change');    // Trigger the change event to update totals
         }
     });
 
@@ -132,8 +135,11 @@ $(document).ready(function() {
     $(document).on('click', '.decrement-btn', function() {
         var $input = $(this).siblings('.input-number');
         var currentVal = parseInt($input.val());
-        if (!isNaN(currentVal) && currentVal > parseInt($input.attr('min'))) {
-            $input.val(currentVal).trigger('change');
+        var minVal = parseInt($input.attr('min')-1);
+
+        if (!isNaN(currentVal) && currentVal > minVal) {
+            $input.val(currentVal);  // Decrement the value by 1
+            $input.trigger('change');    // Trigger the change event to update totals
         }
     });
 
@@ -161,5 +167,6 @@ $(document).ready(function() {
         });
     });
 });
+
 </script>
 {% endblock %}

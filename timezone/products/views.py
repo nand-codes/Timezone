@@ -91,8 +91,6 @@ def add_product(request):
                 image=image_data  
             )
             return redirect('products:product_list')
-        else:
-            print("No image data found!")
     
     return render(request, 'manageproduct/add-product.html', context)
 
@@ -160,7 +158,6 @@ def shop(request):
 def single_product(request, id):
     obj = get_object_or_404(Varient, id=id)
     product = obj.product
-    print(product.get_active_offer)
     variant_items = Varient.objects.filter(product=product)
     
     wishlist_items = False
@@ -291,7 +288,6 @@ def edit_product(request,id):
     brands=Brand.objects.all()
     categories=Category.objects.all()
     product=Products.objects.get(id=id)
-    print(product)
     context={
         'product':product,
         'brands':brands,

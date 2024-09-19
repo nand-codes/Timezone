@@ -58,9 +58,6 @@ def order_details(request, id):
             item = get_object_or_404(OrderItem, id=item_id, order=order)
             if item.status == 'Pending':
                 if coupon:
-                    print(order.total_amount,"total amount")
-                    print(item.price,"item")
-                    print(discount_amount,"check")
                     item_price_after_discount = (item.price / (order.total_amount+discount_amount)) * (order.total_amount)
                 else:
                     item_price_after_discount = item.price
@@ -120,14 +117,12 @@ def order_details(request, id):
         elif 'return_item' in request.POST:
             item_id = request.POST.get('return_item')
             item = get_object_or_404(OrderItem, id=item_id, order=order)
-            print(item.status)
             if item.status == 'Delivered':
                 item.status = 'return_request'
                 item.save()
                 if all(order_item.status == 'return_request' for order_item in order_items):
                     order.status = 'return_request'
                     order.save()
-                print(item.status,"jkhsd")
 
                 messages.success(request, 'The product has been successfully requested for return.')
             else:
@@ -238,6 +233,7 @@ def admin_order_detail_view(request, id):
                     amount=discounted_item_price,
                     discription=f"Refund for order #{order.id}"
                     )
+                item.product.save()
                 item.save()
                 wallet.save()
                 if all(item.status == 'Returned' for item in order_items):

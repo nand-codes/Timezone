@@ -99,6 +99,8 @@
             </div>
           </div>
         {% endfor %}
+        <div class="col-md-6 mb-4">
+        </div>
       </div>
     </div>
 
@@ -110,6 +112,9 @@
           <div class="col-md-4 mb-4">
               <div class="card border-primary">
                   <div class="card-body">
+                    {% if coupon.active == False %}
+                    <h5 style="color: red;"> Inactive</h5>
+                    {% endif %}
                       <h5 class="card-title">{{ coupon.name }}</h5>
                       <p class="card-text">
                           <strong>Code:</strong> {{ coupon.code }} <br>
@@ -153,7 +158,7 @@
                   <input type="text" class="form-control" id="company" name="building" placeholder="Building name" />
                 </div>
                 <div class="col-md-6 form-group p_star">
-                  <input type="text" class="form-control" id="number" placeholder="Phone number" name="number" />
+                  <input type="number" maxlength="10" class="form-control" id="number" placeholder="Phone number" name="number" />
                 </div>
                 <div class="col-md-6 form-group p_star">
                   <input type="text" class="form-control" id="email" placeholder="Email Address" name="email" />
@@ -206,7 +211,8 @@
                         <a href="#">Discount ({{ coupon_code }})
                             <span>{{ discount }}%</span>
                         </a>
-                        <a style="color: red;text-decoration: underline;" href="{% url 'cart:remove_coupon' %}">Remove coupon</a>
+                        <a href="#" id="remove_coupon_btn" style="color: red; text-decoration: underline;">Remove coupon</a>
+
                     </li>
                     
                     {% endif %}
@@ -275,6 +281,90 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get form, address radio buttons, and new address form elements
+    const orderForm = document.querySelector('form');
+    const addressRadios = document.querySelectorAll('input[name="select_address"]');
+    
+    // Add event listener for form submission
+    orderForm.addEventListener('submit', function(event) {
+        // Check if any address is selected
+        let addressSelected = Array.from(addressRadios).some(radio => radio.checked);
+        let newAddressFilled = checkNewAddressFilled();
+        let formValid = validateNewAddressForm();
+
+        // If no address is selected and no new address is filled or form is invalid, prevent submission
+        if (!addressSelected && (!newAddressFilled || !formValid)) {
+            event.preventDefault(); // Prevent form submission
+            alert('Please select an address or correctly fill in the new address form before proceeding.');
+        }
+    });
+
+    // Function to check if the new address form is filled (simple check for any input)
+    function checkNewAddressFilled() {
+        // List of required fields for new address
+        const requiredFields = ['first', 'last', 'company', 'number', 'email', 'add1', 'city', 'district', 'zip'];
+        
+        return requiredFields.some(field => {
+            const input = document.getElementById(field);
+            return input && input.value.trim() !== '';  // Check if any field is filled
+        });
+    }
+
+    // Function to validate the new address form
+    function validateNewAddressForm() {
+        let formValid = true;
+
+        // Clear any previous error messages
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+
+        // Validate required fields
+        const requiredFields = [
+            { id: 'first', name: 'First Name' },
+            { id: 'last', name: 'Last Name' },
+            { id: 'company', name: 'Building Name' },
+            { id: 'number', name: 'Phone Number', pattern: /^\d{10}$/ },  // Phone number must be 10 digits
+            { id: 'email', name: 'Email', pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },  // Basic email validation
+            { id: 'add1', name: 'Address Line 1' },
+            { id: 'city', name: 'City' },
+            { id: 'district', name: 'District' },
+            { id: 'zip', name: 'Postcode/ZIP' }
+        ];
+
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            if (input) {
+                const value = input.value.trim();
+                if (value === '') {
+                    showError(input, ${field.name} is required.);
+                    formValid = false;
+                } else if (field.pattern && !field.pattern.test(value)) {
+                    showError(input, Please enter a valid ${field.name}.);
+                    formValid = false;
+                }
+            }
+        });
+
+        return formValid;
+    }
+
+    // Function to display error messages
+    function showError(input, message) {
+        const errorElement = document.createElement('div');
+        errorElement.classList.add('error-message');
+        errorElement.style.color = 'red';
+        errorElement.style.fontSize = '0.875rem';
+        errorElement.textContent = message;
+        input.parentNode.appendChild(errorElement);
+    }
+});
+
+
+  </script>
+  
+
+
+<script>
 document.getElementById('apply_coupon_btn').addEventListener('click', function() {
     var couponCode = document.getElementById('coupon_code').value;
 
@@ -289,35 +379,60 @@ document.getElementById('apply_coupon_btn').addEventListener('click', function()
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Coupon applied successfully!');
-            location.reload();
+            // Update the discount and total amounts dynamically
+            document.querySelector('.list_2').innerHTML = `
+                <li><a href="#">Discount (${data.coupon_code})<span>${data.discount}%</span></a>
+                    <a href="{% url 'cart:remove_coupon' %}" style="color: red;text-decoration: underline;" id="remove_coupon_btn">Remove coupon</a>
+                </li>
+                <li><a href="#">Subtotal<span>${data.new_subtotal}</span></a></li>
+                <li><a href="#">Shipping<span style="color: greenyellow;">Limited time free Shipping</span></a></li>
+                <li><a href="#">Total<span>${data.new_total}</span></a></li>
+            `;
+
+            // Update the UI for removing the coupon
+            attachRemoveCouponListener(); // Attach event listener for remove button
         } else {
             alert('Failed to apply coupon: ' + data.error);
         }
     })
     .catch(error => console.error('Error:', error));
 });
+
 </script>
 
 <script>
-  document.getElementById('remove_coupon_btn').addEventListener('click', function() {
-      fetch('/cart/remove-coupon/', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': '{{ csrf_token }}'
-          }
-      })
-      .then(response => response.json())
-      .then(data => {
-          if (data.success) {
-              alert('Coupon removed successfully!');
-              location.reload();
-          } else {
-              alert('Failed to remove coupon: ' + data.error);
-          }
-      })
-      .catch(error => console.error('Error:', error));
-  });
+
+function attachRemoveCouponListener() {
+    document.getElementById('remove_coupon_btn').addEventListener('click', function(event) {
+        event.preventDefault();  // Prevent the default link behavior
+        
+        fetch("{% url 'cart:remove_coupon' %}", {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+    }
+})
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the discount and total amounts dynamically
+                document.querySelector('.list_2').innerHTML = `
+                    <li><a href="#">Subtotal<span>${data.new_subtotal}</span></a></li>
+                    <li><a href="#">Shipping<span style="color: greenyellow;">Limited time free Shipping</span></a></li>
+                    <li><a href="#">Total<span>${data.new_total}</span></a></li>
+                `;
+            } else {
+                alert('Failed to remove coupon: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+}
+
+attachRemoveCouponListener();
+
+
 </script>
+
 {% endblock %}

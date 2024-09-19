@@ -57,8 +57,6 @@ def edit_profile(request):
         location=request.POST.get('location')
         state=request.POST.get('state')
         username=request.POST.get('username')
-        print(username,"hsdgfjs")
-
         user.first_name=firstname
         user.username=username
         user_profile.mobile=phone

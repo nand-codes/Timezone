@@ -87,11 +87,9 @@ def update_cart(request):
             cart_item = Cart.objects.get(id=cart_item_id, user=request.user)
             variant = cart_item.varient
             
-            # Check if the new quantity exceeds the variant stock
             if new_quantity > variant.quantity:
                 return JsonResponse({'error': 'Insufficient stock available for this item'}, status=400)
             
-            # Update the cart item quantity
             cart_item.quantity = new_quantity
             cart_item.save()
             
@@ -109,6 +107,8 @@ def update_cart(request):
             return JsonResponse({'error': 'Cart item does not exist'}, status=404)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
 
 
 @never_cache
@@ -167,8 +167,7 @@ def checkout(request):
             if coupon.is_valid():
                 discount = Decimal(coupon.discount)
                 discounted_amount=grand_total * (discount/100)
-                grand_total -= discounted_amount
-                print(grand_total,"discount")    
+                grand_total -= discounted_amount  
                 request.session['discount']=float(discount)
             else:
                 coupon_code = None
@@ -194,9 +193,8 @@ def checkout(request):
         if address_id:
             selected_address = get_object_or_404(Address, id=address_id)
         else:
-            selected_address = Address.objects.filter(user=user).first()
-
-            if not selected_address:
+            selected_address = Address.objects.create(                    
+                    user=user,
                     first_name=request.POST.get('first_name'),
                     last_name=request.POST.get('last_name'),
                     building_name=request.POST.get('building'),
@@ -208,36 +206,8 @@ def checkout(request):
                     town_city=request.POST.get('city'),
                     district=request.POST.get('district'),
                     postcode_zip=request.POST.get('zip')
-
-                    required_fields = [
-                            'first_name', 'last_name', 'building', 'number', 'email', 'country', 
-                            'add1', 'city', 'district', 'zip'
-                                ]
-
-                    missing_fields = [field for field in required_fields if not request.POST.get(field)]
-
-                    if missing_fields:
-                        messages.error(request,'please fill all fileds')
-                        return redirect('cart:checkout')
-                    
-                    else:
-                        selected_address = Address.objects.create(
-                        user=user,
-                        first_name=first_name,
-                        last_name=last_name,
-                        building_name=building_name,
-                        phone_number=phone_number,
-                        email_address=email_address,
-                        country=country,
-                        address_line_1=address_line_1,
-                        address_line_2=address_line_2,
-                        town_city=town_city,
-                        district=district,
-                        postcode_zip=postcode_zip
-                        )
-  
+                )
         if payment_method == 'razorpay':
-            print(total_amount,"hello")
             if grand_total<=0:
                 messages.error(request,"Amount is too low for razorpay .You can go for cash on delivery or wallet")
                 return redirect('cart:checkout')
@@ -342,7 +312,7 @@ def checkout(request):
                 return redirect('login:home')
 
         else:
-            if total_amount > 1000 :
+            if grand_total > 1000 :
                 messages.error(request,"You canot place order using cod in case of orders above 1000,Please select any other payment method")
             else:
 
@@ -476,30 +446,68 @@ def retry_payment(request, order_id):
 
 
 
+@login_required(login_url='login:login')
 def apply_coupon(request):
     if request.method == 'POST':
-        data = json.loads(request.body)  
+        data = json.loads(request.body)
         coupon_code = data.get('coupon_code')
-        discount = 0
-        request.session['coupon_code'] = coupon_code
+
         try:
             coupon = Coupon.objects.get(code=coupon_code, active=True)
+            cart = Cart.objects.filter(user=request.user)
+            grand_total = Decimal('0.00')
+            
+            # Calculate total
+            for item in cart:
+                if item.varient.status and item.varient.product.status:
+                    total_amount = item.quantity * item.varient.product.get_discounted_price()
+                    grand_total += total_amount
+            
             if coupon.is_valid():
-                discount = coupon.discount
-                return JsonResponse({'success': True, 'discount': discount})
+                discount = Decimal(coupon.discount)
+                discounted_amount = grand_total * (discount / 100)
+                new_total = grand_total - discounted_amount
+
+                request.session['coupon_code'] = coupon_code
+                request.session['discount'] = float(discount)
+
+                return JsonResponse({
+                    'success': True,
+                    'coupon_code': coupon_code,
+                    'discount': discount,
+                    'new_subtotal': str(grand_total),
+                    'new_total': str(new_total)
+                })
             else:
-                return JsonResponse({'success': False, 'error': 'Coupon is not valid or expired'})
+                return JsonResponse({'success': False, 'error': 'Coupon is not valid.'})
+
         except Coupon.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Coupon not found'})
+            return JsonResponse({'success': False, 'error': 'Coupon does not exist.'})
 
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 
+
+
+@login_required(login_url='login:login')
 def remove_coupon(request):
-    request.session.pop('coupon_code', None)
-    return redirect('cart:checkout')
+    try:
+        # Remove the coupon from session
+        if 'coupon_code' in request.session:
+            del request.session['coupon_code']
+
+        # Recalculate total (assuming this is stored in the session)
+        original_grand_total = request.session.get('original_grand_total', 0)
+        new_total = original_grand_total  # No discount after removing the coupon
+
+        # Respond with the updated values
+        return JsonResponse({
+            'success': True,
+            'new_subtotal': original_grand_total,
+            'new_total': new_total
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 
@@ -518,14 +526,9 @@ def add_cart(request, id):
 def remove_cart(request, id):
     user = request.user
     varient = get_object_or_404(Varient, id=id)
-    print(varient, "Variant to remove")
     cart_items = Cart.objects.filter(user=user, varient=varient)
-    print(cart_items, "Matching cart items")
     if cart_items.exists():
         cart_items.delete()
-        print("Item deleted")
-    else:
-        print("No matching cart item found")
     return redirect('cart:cart')
 
 

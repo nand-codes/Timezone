@@ -109,7 +109,6 @@ def admin_page(request):
     .annotate(total_sold=Sum('quantity'))  
     .order_by('-total_sold')[:5]  
     )
-    print(top_categories)
 
     top_categories_list = [
     {
@@ -206,7 +205,6 @@ def otp(request):
         otp_sent = temp.get('otp')
         otp_sent_time = temp.get('otp_sent_time')
         refferal_code = temp.get('refferal_code')
-        print(otp_sent)
 
         # Check if OTP has expired (1 minute)
         if time.time() - otp_sent_time > 60:
