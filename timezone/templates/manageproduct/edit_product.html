@@ -53,22 +53,22 @@
                         
                         <!-- Male Radio Button -->
                         <div class="form-check form-check-inline">
-                            <input type="radio" id="gender-male" name="gender" class="form-check-input shadow-sm" value="M" 
-                                   required="" {% if product.gender == "M" %}checked{% endif %}>
+                            <input type="radio" id="gender-male" name="gender" class="form-check-input shadow-sm" value="Male" 
+                                   required="" {% if product.gender == "Male" %}checked{% endif %}>
                             <label class="form-check-label" for="gender-male">Male</label>
                         </div>
                         
                         <!-- Female Radio Button -->
                         <div class="form-check form-check-inline">
-                            <input type="radio" id="gender-female" name="gender" class="form-check-input shadow-sm" value="F" 
-                                   required="" {% if product.gender == "F" %}checked{% endif %}>
+                            <input type="radio" id="gender-female" name="gender" class="form-check-input shadow-sm" value="Female" 
+                                   required="" {% if product.gender == "Female" %}checked{% endif %}>
                             <label class="form-check-label" for="gender-female">Female</label>
                         </div>
                         
                         <!-- Unisexual Radio Button -->
                         <div class="form-check form-check-inline">
-                            <input type="radio" id="gender-unisexual" name="gender" class="form-check-input shadow-sm" value="U" 
-                                   required="" {% if product.gender == "U" %}checked{% endif %}>
+                            <input type="radio" id="gender-unisexual" name="gender" class="form-check-input shadow-sm" value="Unisexual" 
+                                   required="" {% if product.gender == "Unisexual" %}checked{% endif %}>
                             <label class="form-check-label" for="gender-unisexual">Unisexual</label>
                         </div>
                     </div>
@@ -120,69 +120,78 @@
 
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const imageInput = document.getElementById('product-image');
-        const imagePreview = document.getElementById('image-preview');
-        const cropButton = document.getElementById('crop-button');
-        const croppedImageDataInput = document.getElementById('cropped-image-data');
-        let cropper;
-    
-        // Handle image input change
-        imageInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
+
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('product-image');
+    const imagePreview = document.getElementById('image-preview');
+    const cropButton = document.getElementById('crop-button');
+    const croppedImageDataInput = document.getElementById('cropped-image-data');
+    let cropper;
+
+    // Handle image input change
+    imageInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+
+        // If a new image is uploaded
+        if (file) {
             const reader = new FileReader();
-    
             reader.onload = function(e) {
                 imagePreview.src = e.target.result;
                 imagePreview.style.display = 'block';
                 cropButton.style.display = 'inline-block';
-    
+
                 // Destroy any previous cropper instance
                 if (cropper) {
                     cropper.destroy();
                 }
-    
+
                 // Initialize Cropper.js
                 cropper = new Cropper(imagePreview, {
                     aspectRatio: 1, // Change the aspect ratio as needed
                     viewMode: 1
                 });
             };
-    
             reader.readAsDataURL(file);
-        });
-    
-        // Handle crop button click
-        cropButton.addEventListener('click', function() {
-            if (cropper) {
-                // Get the cropped image as a data URL
-                const croppedCanvas = cropper.getCroppedCanvas();
-                if (croppedCanvas) {
-                    croppedImageDataInput.value = croppedCanvas.toDataURL('image/jpeg');
-                    alert('Image cropped successfully!');
-                } else {
-                    console.error('Cropping failed - check Cropper.js initialization.');
-                }
-            } else {
-                console.error('Cropper not initialized.');
-            }
-        });
-    
-        // Handle form submission
-        document.querySelector('form').addEventListener('submit', function(event) {
-            // Check if the image has been cropped
-            if (croppedImageDataInput.value) {
-                // Allow form submission
-                console.log('Form is ready to be submitted.');
-            } else {
-                // Prevent form submission if the image hasn't been cropped
-                event.preventDefault();
-                console.error('Cropped image data is missing.');
-                alert('Please crop the image before submitting the form.');
-            }
-        });
+        } else {
+            // No image uploaded, hide preview and crop button
+            imagePreview.style.display = 'none';
+            cropButton.style.display = 'none';
+        }
     });
-    
+
+    // Handle crop button click
+    cropButton.addEventListener('click', function() {
+        if (cropper) {
+            // Get the cropped image as a data URL
+            const croppedCanvas = cropper.getCroppedCanvas();
+            if (croppedCanvas) {
+                croppedImageDataInput.value = croppedCanvas.toDataURL('image/jpeg');
+                alert('Image cropped successfully!');
+            } else {
+                console.error('Cropping failed - check Cropper.js initialization.');
+            }
+        }
+    });
+
+    // Handle form submission
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const isImageUploaded = imageInput.files.length > 0;
+
+        // Allow form submission if:
+        // 1. No new image is uploaded
+        // 2. New image is uploaded (whether cropped or not)
+        if (!isImageUploaded || croppedImageDataInput.value || !cropper) {
+            // Allow form submission
+            return true;
+        } else {
+            // Prevent form submission if the image is uploaded but not cropped
+            event.preventDefault();
+            alert('Please crop the image or proceed without cropping.');
+        }
+    });
+});
+
+
     </script>
 
 

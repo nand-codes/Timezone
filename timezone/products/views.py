@@ -68,6 +68,7 @@ def add_product(request):
         brand_instance = Brand.objects.get(id=brand_get)
         category_get = request.POST.get('category')
         category_instance = Category.objects.get(id=category_get)
+        gender=request.POST.get('gender')
         price = request.POST.get('price')
         description = request.POST.get('description')
         cropped_image_data = request.POST.get('cropped_image_data')
@@ -86,6 +87,7 @@ def add_product(request):
                 name=name,
                 brand=brand_instance,
                 Category=category_instance,
+                gender=gender,
                 price=price,
                 discription=description,
                 image=image_data  
@@ -299,6 +301,7 @@ def edit_product(request,id):
         brand_instance = Brand.objects.get(id=brand_get)
         category_get = request.POST.get('category')
         category_instance = Category.objects.get(id=category_get)
+        gender=request.POST.get('gender')
         price = request.POST.get('price')
         description = request.POST.get('description')
         image_data = request.POST.get('cropped_image_data')
@@ -311,16 +314,18 @@ def edit_product(request,id):
 
             # Decode the base64 image data
             image_data = ContentFile(base64.b64decode(imgstr), name=f"{name}.{ext}")
-        
-            product.name=name
-            product.brand=brand_instance
-            product.Category=category_instance
-            product.price=price
-            product.discription=description
             product.image=image_data
 
-            product.save()
-            return redirect('products:varient_list',id=id)
+        
+        product.name=name
+        product.brand=brand_instance
+        product.Category=category_instance
+        product.gender=gender
+        product.price=price
+        product.discription=description
+
+        product.save()
+        return redirect('products:varient_list',id=id)
         
 
 

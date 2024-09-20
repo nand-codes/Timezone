@@ -98,23 +98,17 @@
                             <figure class="product-main-image">              
                                 <img id="product-zoom" src="{{ obj.image.url }}" alt="product image" class="img-fluid mb-4 rounded-3" style="width: 500px; height: 500px;">
 								<div id="product-zoom-gallery" class="product-image-gallery">
-									<a class="product-gallery-item" href="#" data-image="{{ obj.image_1.url }}"
-										data-zoom-image="">
-                
-										<img src="{{ obj.image_1.url }}" alt="product side"
-											class="img-fluid" style="width: 100%; max-width: 150px;">
-									</a>
-									<a class="product-gallery-item" href="#" data-image="{{ first_item.image_2.url }}"
-										data-zoom-image="">
-										<img src="{{ obj.image_2.url }}" alt="product side"
-											class="img-fluid" style="width: 100%; max-width: 150px;">
-									</a>
-									<a class="product-gallery-item" href="#" data-image="{{ first_item.image_3.url }}"
-										data-zoom-image="">
-										<img src="{{ obj.image_3.url }}" alt="product side"
-											class="img-fluid" style="width: 100%; max-width: 150px;">
-									</a>
-								</div>
+                                    <a class="product-gallery-item" href="#" data-image="{{ obj.image_1.url }}">
+                                        <img src="{{ obj.image_1.url }}" alt="product side" class="img-fluid" style="width: 100%; max-width: 150px;">
+                                    </a>
+                                    <a class="product-gallery-item" href="#" data-image="{{ obj.image_2.url }}">
+                                        <img src="{{ obj.image_2.url }}" alt="product side" class="img-fluid" style="width: 100%; max-width: 150px;">
+                                    </a>
+                                    <a class="product-gallery-item" href="#" data-image="{{ obj.image_3.url }}">
+                                        <img src="{{ obj.image_3.url }}" alt="product side" class="img-fluid" style="width: 100%; max-width: 150px;">
+                                    </a>
+                                </div>
+                                
                             </figure>
                         </div>
                     </div>
@@ -300,6 +294,20 @@
 </div>
 {% endblock %}
 
+<script>
+    $(document).ready(function() {
+        // Event listener for clicking on thumbnail images
+        $('.product-gallery-item').on('click', function(e) {
+            e.preventDefault(); // Prevent default action of link
+
+            // Get the new image URL from the clicked thumbnail's data-image attribute
+            var newImageSrc = $(this).attr('data-image');
+
+            // Set the new image URL to the main image
+            $('#product-zoom').attr('src', newImageSrc);
+        });
+    });
+</script>
 
 
 
@@ -307,8 +315,6 @@
 
 {% block scripts %}
 
-
-<!-- Plugins JS File -->
 <script src="newStyle/assets/js/jquery.min.js"></script>
 <script src="newStyle/assets/js/bootstrap.bundle.min.js"></script>
 <script src="newStyle/assets/js/jquery.hoverIntent.min.js"></script>
@@ -322,6 +328,20 @@
 <!-- Main JS File -->
 <script src="newStyle/assets/js/main.js"></script>
 
+<script>
+    $(document).ready(function() {
+        // Event listener for clicking on thumbnail images
+        $('.product-gallery-item').on('click', function(e) {
+            e.preventDefault(); // Prevent default action of link
+
+            // Get the new image URL from the clicked thumbnail's data-image attribute
+            var newImageSrc = $(this).attr('data-image');
+
+            // Set the new image URL to the main image
+            $('#product-zoom').attr('src', newImageSrc);
+        });
+    });
+</script>
 
 
 
