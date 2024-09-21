@@ -336,10 +336,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (input) {
                 const value = input.value.trim();
                 if (value === '') {
-                    showError(input, ${field.name} is required.);
+                    showError(input, `${field.name} is required.`);
                     formValid = false;
                 } else if (field.pattern && !field.pattern.test(value)) {
-                    showError(input, Please enter a valid ${field.name}.);
+                    showError(input, `Please enter a valid ${field.name}.`);
                     formValid = false;
                 }
             }

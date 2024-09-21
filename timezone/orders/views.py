@@ -264,7 +264,7 @@ def admin_order_detail_view(request, id):
 @login_required(login_url='login:admin_login')
 @user_passes_test(is_staff_c,'login:home')
 def sales_report(request):
-    orders = Orders.objects.all()
+    orders = Orders.objects.all().order_by('-order_date')
 
     filter_by = request.GET.get('filter')
     start_date_str = request.GET.get('start_date')
@@ -310,6 +310,8 @@ def sales_report(request):
         orders = paginator.page(1)
     except EmptyPage:
         orders = paginator.page(paginator.num_pages)
+
+    
 
     context = {
         'orders': orders,
@@ -359,7 +361,7 @@ def generate_pdf_report(request):
         logo = Paragraph(f"Error loading logo: {str(e)}", styles['Normal'])
 
     # Filter orders based on the filters passed in the request
-    orders = Orders.objects.all()
+    orders = Orders.objects.all().order_by('-order_date')
     filter_by = request.GET.get('filter')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')

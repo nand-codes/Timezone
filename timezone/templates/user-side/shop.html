@@ -190,28 +190,6 @@
                             </div><!-- End .collapse -->
                         </div><!-- End .widget -->
                         
-                        <div class="widget widget-collapsible">
-                            <h3 class="widget-title">
-                                <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="false" aria-controls="widget-2">
-                                    Colour
-                                </a>
-                            </h3><!-- End .widget-title -->
-                        
-                            <div class="collapse" id="widget-2">
-                                <div class="widget-body">
-                                    <div class="filter-items filter-items-count">
-                                        {% for colour in colours %}
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input class="custom-control-input" type="checkbox" name="colour" value="{{ colour.id }}" id="colour-{{ colour.id }}" {% if colour.id == colour_filter %}checked{% endif %} onchange="document.getElementById('sortingAndFilterForm').submit()">
-                                                <label class="custom-control-label" for="colour-{{ colour.id }}">{{ colour.colour }}</label>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div><!-- End .filter-items -->
-                                </div><!-- End .widget-body -->
-                            </div><!-- End .collapse -->
-                        </div><!-- End .widget -->
                         
                         <div class="widget widget-collapsible">
                             <h3 class="widget-title">

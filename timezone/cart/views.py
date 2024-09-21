@@ -193,6 +193,11 @@ def checkout(request):
         if address_id:
             selected_address = get_object_or_404(Address, id=address_id)
         else:
+            required_fields = ['first_name', 'last_name', 'building', 'number', 'email', 'country', 'add1', 'city', 'district', 'zip']
+            missing_fields = [field for field in required_fields if not request.POST.get(field)]
+            if missing_fields:
+                messages.error(request,"Please enter all the fields")
+                return redirect('cart:checkout')
             selected_address = Address.objects.create(                    
                     user=user,
                     first_name=request.POST.get('first_name'),
@@ -513,7 +518,7 @@ def remove_coupon(request):
 
 
 
-
+@never_cache
 def add_cart(request, id):
     if request.method == 'POST':
         user = request.user

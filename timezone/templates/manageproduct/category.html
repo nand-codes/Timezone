@@ -68,7 +68,7 @@
                             <div class="input-group input-group-merge">
                                 <div class="form-floating form-floating-outline">
                                     <input id="modalAddCard" name="category" class="form-control credit-card-mask" type="text"
-                                        placeholder="Category name" aria-describedby="modalAddCard2">
+                                        placeholder="Category name" aria-describedby="modalAddCard2" min="4">
                                     <label for="modalAddCard">Category name</label>
                                     <div class="invalid-feedback" id="add-category-error-message"></div>
                                 </div>
@@ -123,51 +123,58 @@
             const addNewCCForm = document.getElementById('addNewCCForm');
             const addCategoryInput = addNewCCForm.querySelector('input[name="category"]');
             const addCategoryErrorMessage = document.getElementById('add-category-error-message');
-            
+    
             addNewCCForm.addEventListener('submit', function(event) {
                 const categoryName = addCategoryInput.value.trim();
-                
-                if (categoryName === '' || !isNaN(categoryName) || /\d/.test(categoryName)) {
+    
+                // Validation: At least 4 characters, no numbers, no whitespace, no special characters
+                const validCategoryPattern = /^[a-zA-Z]{4,}$/;
+    
+                if (!validCategoryPattern.test(categoryName)) {
                     event.preventDefault();
-                    addCategoryErrorMessage.textContent = 'Category name is required and cannot contain numbers or be empty.';
+                    addCategoryErrorMessage.textContent = 'Category name must be at least 4 letters long, contain no numbers, no spaces, and no special characters.';
                 } else {
                     addCategoryErrorMessage.textContent = '';
                 }
             });
-
+    
             // Validation for Edit Category Form
             const editCategoryForm = document.getElementById('editCategoryForm');
             const editCategoryInput = editCategoryForm.querySelector('input[name="category"]');
             const editCategoryErrorMessage = document.getElementById('edit-category-error-message');
-            
+    
             editCategoryForm.addEventListener('submit', function(event) {
                 const categoryName = editCategoryInput.value.trim();
-                
-                if (categoryName === '' || !isNaN(categoryName) || /\d/.test(categoryName)) {
+    
+                // Validation: At least 4 characters, no numbers, no whitespace, no special characters
+                const validCategoryPattern = /^[a-zA-Z]{4,}$/;
+    
+                if (!validCategoryPattern.test(categoryName)) {
                     event.preventDefault();
-                    editCategoryErrorMessage.textContent = 'Category name is required and cannot contain numbers or be empty.';
+                    editCategoryErrorMessage.textContent = 'Category name must be at least 4 letters long, contain no numbers, no spaces, and no special characters.';
                 } else {
                     editCategoryErrorMessage.textContent = '';
                 }
             });
-
+    
             // Populate the Edit Category Modal with category data
             const editButtons = document.querySelectorAll('.edit-category-btn');
-
+    
             editButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const categoryId = this.getAttribute('data-category-id');
                     const categoryName = this.getAttribute('data-category-name');
-
+    
                     const modal = document.getElementById('editCCModal');
                     const categoryInput = modal.querySelector('input[name="category"]');
-
+    
                     categoryInput.value = categoryName;
-
+    
                     const form = modal.querySelector('form');
                     form.action = `{% url 'products:edit_category' 0 %}`.replace('0', categoryId);
                 });
             });
         });
     </script>
+    
 {% endblock %}

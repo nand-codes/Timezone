@@ -11,6 +11,8 @@ from .models import Products
 from datetime import datetime
 from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.views.decorators.cache import never_cache
+
 
 # Create your views here.
 
@@ -100,12 +102,10 @@ def add_product(request):
 def shop(request):
     categories = Category.objects.filter(status=True)
     brands = Brand.objects.filter(status=True)
-    colours=Colour.objects.all()
     sort_by = request.GET.get('sort_by', '-product__created_at')
 
     filter_category = request.GET.get('category')
     filter_brand = request.GET.get('brand')
-    filter_colour = request.GET.get('color')
 
     # Initialize the queryset
     obj = Varient.objects.filter(
@@ -125,9 +125,6 @@ def shop(request):
         obj = obj.filter(product__brand__id=filter_brand)
         obj = obj.order_by(sort_by)
 
-    # Apply color filter with case-insensitive match
-    if filter_colour:
-        obj = obj.filter(Colour__colour__iexact=filter_colour)
 
 
     obj = obj.order_by(sort_by)
@@ -147,16 +144,14 @@ def shop(request):
         'no_product':no_product,
         'categories': categories,
         'brands': brands,
-        'colours':colours,
         'category_filter': filter_category,
         'brand_filter': filter_brand,
-        'color_filter': filter_colour,
     }
     return render(request, 'user-side/shop.html', context)
 
 
 
-
+@never_cache
 def single_product(request, id):
     obj = get_object_or_404(Varient, id=id)
     product = obj.product
@@ -270,6 +265,9 @@ def colour(request):
     colours=Colour.objects.all()
     if request.method == 'POST':
         new_colour = request.POST.get('colour')
+        if Colour.objects.filter(colour__iexact=new_colour).exists():
+            messages.error(request,"colour already exists")
+            return redirect('products:colour')
         Colour.objects.create(colour=new_colour)
         return redirect('products:colour')
     return render(request,'manageproduct/colours.html',{'colours':colours})
@@ -279,6 +277,9 @@ def colour_edit(request, id):
         colour = get_object_or_404(Colour, id=id)
         edit_colour = request.POST.get('colour')
         if edit_colour:
+            if Colour.objects.filter(colour__iexact=edit_colour):
+                messages.error(request,'colour already exists')
+                return redirect('products:colour')
             colour.colour = edit_colour
             colour.save()
         return redirect('products:colour')
@@ -317,6 +318,11 @@ def edit_product(request,id):
             product.image=image_data
 
         
+        
+        if Products.objects.filter(name=name,brand=brand_instance,Category=category_instance).exclude(id=product.id).exists():
+            messages.error(request,"This product already exists")
+            return redirect('products:varient_list',id=id)
+
         product.name=name
         product.brand=brand_instance
         product.Category=category_instance
@@ -360,6 +366,9 @@ def edit_category(request, id):
         category = get_object_or_404(Category, id=id)
         new_category_name = request.POST.get('category')
         if new_category_name:
+            if Category.objects.filter(type__icontains=new_category_name).exists():
+                messages.error(request,"category already exists")
+                return redirect('products:category')
             category.type = new_category_name
             category.save()
         return redirect('products:category')
@@ -378,6 +387,9 @@ def edit_brand(request, id):
         brand = get_object_or_404(Brand, id=id)
         new_brand_name = request.POST.get('brand')
         if new_brand_name:
+            if Brand.objects.filter(name__icontains=new_brand_name).exists():
+                messages.error(request,f"Brand already exist cant edit brand name to {new_brand_name}")
+                return redirect('products:brand_list')
             brand.name = new_brand_name
             brand.save()
         return redirect('products:brand_list')
@@ -393,10 +405,11 @@ def product_offer(request):
         product_instance=Products.objects.get(id=product)
         discount = request.POST.get('discount')
         valid_to_str = request.POST.get('valid_to')
-        try:
-            valid_to = datetime.strptime(valid_to_str, '%Y-%m-%d')
-        except ValueError:
-            return HttpResponse("Invalid date format. Please use YYYY-MM-DD format.", status=400)
+        valid_to = datetime.strptime(valid_to_str, '%Y-%m-%d')
+
+        if ProductOffer.objects.filter(product=product).exists():
+            messages.error(request,"already have a offer on this product")
+            return redirect('products:product_offer')
         
 
         ProductOffer.objects.create(
@@ -405,6 +418,7 @@ def product_offer(request):
             end_date=valid_to
 
         )
+        return redirect('products:product_offer')
 
     context={
         'product_offer':product_offer,
@@ -423,10 +437,11 @@ def brand_offer(request):
         brand_instance=Brand.objects.get(id=brand)
         discount = request.POST.get('discount')
         valid_to_str = request.POST.get('valid_to')
-        try:
-            valid_to = datetime.strptime(valid_to_str, '%Y-%m-%d')
-        except ValueError:
-            return HttpResponse("Invalid date format. Please use YYYY-MM-DD format.", status=400)
+        valid_to = datetime.strptime(valid_to_str, '%Y-%m-%d')
+
+        if BrandOffer.objects.filter(brand=brand).exists():
+            messages.error(request,"This brand already exists an offer")
+            return redirect('products:brand_offer')
         
 
         BrandOffer.objects.create(
@@ -435,6 +450,7 @@ def brand_offer(request):
             end_date=valid_to
 
         )
+        return redirect('products:brand_offer')
 
     context={
         'brand_offer':brand_offer,

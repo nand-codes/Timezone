@@ -1,6 +1,13 @@
 {% extends 'base/admin_base.html' %}
 {%block content%}
 <div class="card-header d-flex border-top rounded-0 flex-wrap py-0 pb-5 pb-md-0">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-danger">
+        {{message}}
+    </div>
+    {% endfor %}
+    {%endif%}
   <table class="table" style="margin-bottom: 50px;">
         <thead>
             <tr>
