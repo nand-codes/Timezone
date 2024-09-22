@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required,user_passes_test
 from django.core.paginator import Paginator,PageNotAnInteger, EmptyPage
 from cart.models import Coupon
 from django.utils import timezone
+from django.contrib import messages
 
 # Create your views here.
 
@@ -59,10 +60,14 @@ def edit_profile(request):
         username=request.POST.get('username')
         user.first_name=firstname
         user.username=username
-        user_profile.mobile=phone
+        if phone:
+            user_profile.mobile=phone
         user_profile.gender=gender
         user_profile.location=location
         user_profile.State=state
+        if User.objects.filter(username=username).exclude(id=id).exists():
+            messages.error(request,'The user already exists')
+            return redirect('user:edit_profile')
 
         user.save()
         user_profile.save()

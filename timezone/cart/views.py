@@ -327,6 +327,7 @@ def checkout(request):
                     total_amount=grand_total,
                     payment_method=payment_method,
                     payment_status='Pending',
+                    coupon= coupon_code,
                     discounted_amount = discounted_amount
                 )
 
