@@ -200,16 +200,13 @@ def signup(request):
 
 def otp(request):
     if request.method == 'POST':
-        otp_get = request.POST.get('otp')
+        otp_get = request.POST.get('otpInput')
         temp = request.session.get('temp')
         otp_sent = temp.get('otp')
         otp_sent_time = temp.get('otp_sent_time')
         refferal_code = temp.get('refferal_code')
 
-        # Check if OTP has expired (1 minute)
-        if time.time() - otp_sent_time > 60:
-            messages.error(request, "OTP has expired, please resend OTP.")
-            return redirect('login:otp')
+        
 
         if otp_sent == otp_get:
             name = temp.get('name')

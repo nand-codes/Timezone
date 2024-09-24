@@ -124,6 +124,11 @@ def checkout(request):
     blocked_items = []
     discounted_amount=0
 
+    if not cart:
+        messages.error(request,"cart is empty")
+        return render(request,'cart/checkout.html')
+        
+
     for item in cart:
         if item.varient.status and item.varient.product.status and item.varient.product.brand.status:
             if item.varient.product.get_discounted_price() != item.varient.product.price:
@@ -148,8 +153,9 @@ def checkout(request):
         else:
             blocked_items.append(item.varient)
 
-  
-    if blocked_items:
+    if not cart_products:
+        messages.error(request,"all items in your cart is bocked please try again later")
+    elif blocked_items:
         messages.error(request, "Some items in your cart are temporarily blocked and cannot be ordered.")
     
     elif  cart_products==[]:
@@ -236,14 +242,15 @@ def checkout(request):
                 )
 
                 for item in cart:
-                    OrderItem.objects.create(
-                        order=order,
-                        product=item.varient,
-                        quantity=item.quantity,
-                        price=item.varient.product.price
-                    )
-                    item.varient.quantity-= item.quantity
-                    item.varient.save()
+                    if item.varient.status and item.varient.product.status and item.varient.product.brand.status:
+                        OrderItem.objects.create(
+                            order=order,
+                            product=item.varient,
+                            quantity=item.quantity,
+                            price=item.varient.product.price
+                        )
+                        item.varient.quantity-= item.quantity
+                        item.varient.save()
                 Orderaddress.objects.create(
                         order=order,
                         first_name=selected_address.first_name,
@@ -302,15 +309,21 @@ def checkout(request):
                     postcode_zip=selected_address.postcode_zip
                 )
                 for item in cart:
-                    total_amount = item.quantity * item.varient.product.price
-                    OrderItem.objects.create(
-                        order=order,
-                        product=item.varient,
-                        quantity=item.quantity,
-                        price=total_amount
-                    )
-                    item.varient.quantity -= item.quantity
-                    item.varient.save()
+                    if item.varient.status and item.varient.product.status and item.varient.product.brand.status:
+                        total_amount = item.quantity * item.varient.product.price
+                        OrderItem.objects.create(
+                            order=order,
+                            product=item.varient,
+                            quantity=item.quantity,
+                            price=total_amount
+                        )
+                        item.varient.quantity -= item.quantity
+                        item.varient.save()
+                if not OrderItem.objects.filter(order=order):
+                    order.delete()
+                    messages.error(request,"order cant be placed")
+                    cart.delete()
+                    return render(request,'cart/checkout.html')
 
                 cart.delete()
                 request.session.pop('coupon_code', None)
@@ -346,15 +359,21 @@ def checkout(request):
                     postcode_zip=selected_address.postcode_zip
                 )
                 for item in cart:
-                    total_amount = item.quantity * item.varient.product.price
-                    OrderItem.objects.create(
-                        order=order,
-                        product=item.varient,
-                        quantity=item.quantity,
-                        price=total_amount
-                    )
-                    item.varient.quantity -= item.quantity
-                    item.varient.save()
+                    if item.varient.status and item.varient.product.status and item.varient.product.brand.status:
+                        total_amount = item.quantity * item.varient.product.price
+                        OrderItem.objects.create(
+                            order=order,
+                            product=item.varient,
+                            quantity=item.quantity,
+                            price=total_amount
+                        )
+                        item.varient.quantity -= item.quantity
+                        item.varient.save()
+                    if not OrderItem.objects.filter(order=order):
+                        order.delete()
+                        messages.error(request,"order cant be placed")
+                        cart.delete()
+                        return render(request,'cart/checkout.html')
 
                 cart.delete()
                 request.session.pop('coupon_code', None)

@@ -43,7 +43,7 @@
                     </div>
 
                     <div class="form-floating form-floating-outline mb-4">
-                        <input type="number  " value="{{product.price}}" class="form-control rounded-pill border-0 shadow-sm" id="product-name" placeholder="Product Name" name="price" required="">
+                        <input type="number" value="{{product.price}}" id="modalAddCardName" name="price" class="form-control" placeholder="Enter a positive number" min="0.1" step="0.1"  required>
                         <label for="price"><i class="ri-edit-box-line"></i> {{product.price}} </label>
                     </div>
                     

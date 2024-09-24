@@ -83,74 +83,83 @@
         <form method="post">
             {% csrf_token %}
             <label for="otp">Enter OTP:</label>
-            <input type="text" id="otp" name="otp" required>
-            <button type="submit">Verify</button>
+            <input type="text" id="otp" name="otpInput" required>
+            <button id="submitOtpBtn" type="submit">Verify</button>
         </form>
-        <button id="resend-otp" onclick="resendOtp()" disabled>Resend OTP</button>
-        <div id="timer">01:00</div>
+        <button id="resendOtpBtn"  disabled>Resend OTP</button>
+        <div class="timer" id="timer"></div>
     </div>
 
 
     <script>
-        let countdown;
-        const OTP_DURATION = 60;  // Duration of OTP timer in seconds
+        let timerElement = document.getElementById('timer');
+        let resendBtn = document.getElementById('resendOtpBtn');
+        let submitBtn = document.getElementById('submitOtpBtn');
+        let countdownTime = 90; // 60 seconds
 
-        function startTimer(remainingTime) {
-            clearInterval(countdown);
-            let timer = remainingTime, minutes, seconds;
-            countdown = setInterval(function () {
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
+        // Function to start the countdown
+        function startTimer() {
+            let endTime = localStorage.getItem('otpEndTime');
+            if (!endTime) {
+                endTime = new Date().getTime() + countdownTime * 1000;
+                localStorage.setItem('otpEndTime', endTime);
+            }
 
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
+            let interval = setInterval(function () {
+                let now = new Date().getTime();
+                let timeLeft = endTime - now;
 
-                document.getElementById('timer').textContent = minutes + ":" + seconds;
-
-                if (--timer < 0) {
-                    clearInterval(countdown);
-                    document.getElementById('resend-otp').disabled = false;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    timerElement.innerHTML = "You can resend the OTP now.";
+                    resendBtn.disabled = false;
+                    localStorage.removeItem('otpEndTime');
+                } else {
+                    let secondsLeft = Math.floor(timeLeft / 1000);
+                    timerElement.innerHTML = "Resend OTP in " + secondsLeft + " seconds.";
                 }
             }, 1000);
         }
 
-        function resendOtp() {
+        // Event listener for resend button
+        resendBtn.addEventListener('click', function () {
+            resendBtn.disabled = true;
+            localStorage.setItem('otpEndTime', new Date().getTime() + countdownTime * 1000);
+            startTimer();
+
+            // AJAX request to resend the OTP
             fetch("{% url 'login:resend_otp' %}", {
-                method: 'GET',
+                method: "POST",
                 headers: {
-                    'X-CSRFToken': "{{ csrf_token }}"
-                }
-            }).then(response => response.json())
-              .then(data => {
-                  if (data.success) {
-                      alert('OTP resent successfully');
-                      localStorage.setItem('otpSentTime', Date.now());  // Reset the start time
-                      document.getElementById('resend-otp').disabled = true;
-                      startTimer(OTP_DURATION);  // Restart the timer
-                  } else {
-                      alert('Failed to resend OTP.');
-                  }
-              });
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const otpSentTime = localStorage.getItem('otpSentTime');
-            if (otpSentTime) {
-                const elapsedTime = Math.floor((Date.now() - otpSentTime) / 1000);
-                const remainingTime = OTP_DURATION - elapsedTime;
-
-                if (remainingTime > 0) {
-                    document.getElementById('resend-otp').disabled = true;
-                    startTimer(remainingTime);
+                    "X-CSRFToken": "{{ csrf_token }}",  // CSRF token for Django
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("OTP has been resent successfully!");
                 } else {
-                    document.getElementById('resend-otp').disabled = false;
+                    alert("Error resending OTP.");
                 }
-            } else {
-                localStorage.setItem('otpSentTime', Date.now());  // Store the start time
-                document.getElementById('resend-otp').disabled = true;
-                startTimer(OTP_DURATION);
-            }
+            })
+            .catch(error => {
+    console.error("Error:", error);  // Logs the error to the console
+    alert("An error occurred: " + error.message);  // Displays the specific error message to the user
+            });
         });
+
+        // Event listener for submit button
+        submitBtn.addEventListener('click', function () {
+            let otp = document.getElementById('otpInput').value;
+            alert("OTP submitted: " + otp);
+        });
+
+        // Start the timer when the page loads
+        window.onload = function () {
+            startTimer();
+        };
     </script>
 </body>
 </html>

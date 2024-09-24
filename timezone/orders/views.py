@@ -360,11 +360,16 @@ def generate_pdf_report(request):
     except Exception as e:
         logo = Paragraph(f"Error loading logo: {str(e)}", styles['Normal'])
 
-    # Filter orders based on the filters passed in the request
+    # Retrieve orders with filtering applied
     orders = Orders.objects.all().order_by('-order_date')
+
     filter_by = request.GET.get('filter')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+
+    if start_date_str and end_date_str:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
     if filter_by == 'last_week':
         last_week = timezone.now() - timedelta(days=7)
@@ -372,8 +377,11 @@ def generate_pdf_report(request):
     elif filter_by == 'last_month':
         last_month = timezone.now() - timedelta(days=30)
         orders = orders.filter(order_date__gte=last_month)
-    elif filter_by == 'custom' and start_date and end_date:
+    elif filter_by == 'custom' and start_date_str and end_date_str:
         orders = orders.filter(order_date__range=[start_date, end_date])
+    elif filter_by == 'year':
+        year = timezone.now() - timedelta(days=365)
+        orders = orders.filter(order_date__gte=year)
 
     # Table Data
     data = [['Order ID', 'Date', 'Customer', 'Payment', 'Total Amount', 'Status']]
@@ -399,6 +407,7 @@ def generate_pdf_report(request):
     doc.build(elements)
 
     return response
+
 
 
 def invoice(request,id):
