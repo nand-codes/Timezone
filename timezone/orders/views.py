@@ -186,10 +186,12 @@ def admin_order_detail_view(request, id):
         if new_status:
             if new_status == 'Canceled':
                 for item in order_items:
-                    item.status = 'Canceled'
-                    item.product.quantity += item.quantity
-                    item.product.save()
-                    item.save()
+                    if item.status=='Pending':
+                        item.status = 'Canceled'
+                        item.product.quantity += item.quantity
+                        item.product.save()
+                        item.save()
+                        
                 
                 order.status = 'Canceled'
                 if order.payment_method in ['Razorpay','wallet']:
@@ -207,8 +209,9 @@ def admin_order_detail_view(request, id):
                 order.save()
             else:
                 for item in order_items:
-                    item.status = new_status
-                    item.save()
+                    if item.status=='Pending':
+                        item.status = new_status
+                        item.save()
                 order.status= new_status
                 order.save()
             

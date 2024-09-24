@@ -15,7 +15,7 @@
                 <div class="form-floating form-floating-outline">
                   <input type="number" id="form-repeater-1-2" class="form-control" 
                   placeholder="Enter Quantity" name="quantity" 
-                  min="1" step="1" value="{{obj.quantity}}"  >
+                  min="1" step="1" value="{{obj.quantity}}" required  >
                   <label for="form-repeater-1-2" >{{obj.quantity}}</label>
                 </div>
               </div>
@@ -26,20 +26,20 @@
                     <div class="mb-3">
                       <img src="{{obj.image.url}}" width="60px" height="60px">
                         <label for="image" class="form-label">Update image</label>
-                        <input type="file" id="fileInput" value="{{obj.image.url}}" name="image" accept="image/">
+                        <input type="file" id="fileInput" value="{{obj.image.url}}" name="image" accept="image/png, image/jpeg, image/jpg, image/gif">
                         </div>
 
                         <div class="mb-3">
                           <img src="{{obj.image_1.url}}" width="60px" height="60px">
                             <label for="image" class="form-label">Update image</label>
-                            <input type="file" id="fileInput" value="{{obj.image.url}}" name="image_1" accept="image/">
+                            <input type="file" id="fileInput" value="{{obj.image.url}}" name="image_1" accept="image/png, image/jpeg, image/jpg, image/gif">
                         </div>
 
 
                         <div class="mb-3">
                           <img src="{{obj.image_2.url}}" width="60px" height="60px">
                             <label for="image" class="form-label">Update image</label>
-                            <input type="file" id="fileInput" value="{{obj.image.url}}" name="image_2" accept="image/">
+                            <input type="file" id="fileInput" value="{{obj.image.url}}" name="image_2" accept="image/png, image/jpeg, image/jpg, image/gif">
                         </div>
 
 
@@ -47,7 +47,7 @@
                         <div class="mb-3">
                           <img src="{{obj.image_3.url}}" width="60px" height="60px">
                             <label for="image" class="form-label">Update image</label>
-                            <input type="file" id="fileInput" value="{{obj.image.url}}" name="image_3" accept="image/">
+                            <input type="file" id="fileInput" value="{{obj.image.url}}" name="image_3" accept="image/png, image/jpeg, image/jpg, image/gif">
                         </div>
 
 
