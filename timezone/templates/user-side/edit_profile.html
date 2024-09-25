@@ -89,7 +89,9 @@
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="first_name">First Name: {{user.first_name}}</label>
-                        <input type="text" class="form-control" value="{{user.first_name}}" name="firstname" id="first_name">
+                        <input type="text" class="form-control" value="{{user.first_name}}" name="firstname" id="first_name" pattern="[A-Za-z]+" 
+                        title="Only letters are allowed, no spaces."
+                        minlength="4" required>
                     </div>
                     <div class="form-group">
                         <label for="mobile_number">Mobile Number: {{user_profile.mobile}}</label>
@@ -117,7 +119,9 @@
                     <div class="form-group">
                         <label for="username">Username: {{user.username}}</label>
                         <input type="text" class="form-control" id="username" value="{{user.username}}" name="username" 
-                               placeholder="{% if user.username %}{{ user.username }}{% endif %}">
+                               placeholder="{% if user.username %}{{ user.username }}{% endif %}"  pattern="[A-Za-z]+" 
+                               title="Only letters are allowed, no spaces."
+                               minlength="4" required>
                     </div>
                     <button type="submit" class="btn btn-custom">Save Changes</button>
                 </form>
