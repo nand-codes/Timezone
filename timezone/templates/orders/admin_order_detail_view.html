@@ -28,7 +28,7 @@
                   <option value="Canceled" {% if order.status == 'Canceled' %}selected{% endif %}>Canceled</option>
               </select>
           </div>
-              <button class="btn btn-outline-primary delete-order" {% if order.status != 'Pending' %}disabled{%endif%}>Update Order</button>
+              <button class="btn btn-outline-primary delete-order"  {% if order.status != 'Pending' and order.status != 'Failed' %}disabled{% endif %}>Update Order</button>
 
       </form>
       

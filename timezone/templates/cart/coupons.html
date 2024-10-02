@@ -2,6 +2,13 @@
 {% block content %}
 
 <div class="container-xxl flex-grow-1 container-p-y">
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-danger">
+    {{message}}
+  </div>
+  {%endfor%}
+  {%endif%}
     <div class="card">
         <h5 class="card-header">Coupons</h5>
         <div class="table-responsive text-nowrap">
@@ -14,7 +21,8 @@
                         <th>Status</th>
                         <th>Valid from</th>
                         <th>Expiry date</th>
-                        <th>Action</th>
+                        <th>Status Action</th>
+                        <th>Edit</th>
                         <th>Delete</th>
                     </tr>
                 </thead>
@@ -34,7 +42,20 @@
                         <td><a href="{% url 'cart:coupon_status' i.id %}" class="btn btn-status btn-danger "><i class="glyphicon glyphicon-remove-circle"></i> Deactivate</a></td>
                         {% else %}
                         <td>  <a href="{% url 'cart:coupon_status' i.id %}" class="btn btn-status btn-success"><i class="glyphicon glyphicon-ok-circle"></i> Active</a></td>
-                        {% endif %}            
+                        {% endif %} 
+                        
+                        <td>
+                          <button type="button" class="btn btn-primary waves-effect waves-light edit-coupon-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editCouponModal"
+                            data-coupon-id="{{ i.id }}"
+                            data-coupon-code="{{ i.code }}"
+                            data-coupon-discount="{{ i.discount }}"
+                            data-coupon-valid-to="{{ i.valid_to|date:'Y-m-d' }}">
+                            Edit
+                          </button>
+                        </td>
+                        
                         <td><a href="{% url 'cart:coupon_delete' i.id %}">Delete</button></a>
                     </tr>
                     {% endfor %}
@@ -96,28 +117,113 @@
       </div>
 
 
-      <script>
-        // Get today's date in 'YYYY-MM-DD' format
-        const today = new Date().toISOString().split('T')[0];
-        const expiryDateInput = document.getElementById("modalAddCardExpiryDate");
-        
-        // Set the minimum date to today
-        expiryDateInput.setAttribute("min", today);
-      
-        // Add an event listener for input validation
-        expiryDateInput.addEventListener("input", function(event) {
-            const inputDate = new Date(event.target.value);
-            const todayDate = new Date();
-            todayDate.setHours(0, 0, 0, 0);  // Set time to midnight for accurate comparison
-      
-            if (inputDate < todayDate) {
-                // If the entered date is in the past, show a custom error message
-                event.target.setCustomValidity("The date must be today or in the future.");
-            } else {
-                // Clear the error if the date is valid
-                event.target.setCustomValidity("");
-            }
-        });
-      </script>
+
+      <!-- Edit Coupon Modal -->
+    <div class="modal fade" id="editCouponModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-simple">
+        <div class="modal-content">
+          <div class="modal-body p-0">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="text-center mb-4">
+              <h4 class="mb-2">Edit Coupon</h4>
+            </div>
+            <form method="post" id="editCouponForm" class="row g-5">
+              {% csrf_token %}
+              <div class="col-12">
+                <div class="input-group input-group-merge">
+                  <div class="form-floating form-floating-outline">
+                    <input id="editCouponCode" name="coupon_code" class="form-control" type="text" minlength="4" required>
+                    <label for="editCouponCode">Coupon Code</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <div class="form-floating form-floating-outline">
+                  <input type="number" id="editCouponDiscount" name="discount" class="form-control" min="0.1" step="0.1" max="100" required>
+                  <label for="editCouponDiscount">Discount</label>
+                </div>
+              </div>
+
+              <div class="col-6 col-md-3">
+                <div class="form-floating form-floating-outline">
+                  <input type="date" id="modalEditCardExpiryDate" name="valid_to" class="form-control" required>
+                  <label for="editCouponExpiry">Expiry</label>
+                </div>
+              </div>
+
+              <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary me-3">Save Changes</button>
+                <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+      // Get today's date in 'YYYY-MM-DD' format
+      const today = new Date().toISOString().split('T')[0];
+  
+      // Get the expiry date input fields for both 'add' and 'edit' forms
+      const addExpiryDateInput = document.getElementById("modalAddCardExpiryDate");
+      const editExpiryDateInput = document.getElementById("modalEditCardExpiryDate");
+  
+      // Set the minimum date to today for both input fields
+      if (addExpiryDateInput) {
+          addExpiryDateInput.setAttribute("min", today);
+          addExpiryDateInput.addEventListener("input", validateDate);
+      }
+  
+      if (editExpiryDateInput) {
+          editExpiryDateInput.setAttribute("min", today);
+          editExpiryDateInput.addEventListener("input", validateDate);
+      }
+  
+      // Date validation function
+      function validateDate(event) {
+          const inputDate = new Date(event.target.value);
+          const todayDate = new Date();
+          todayDate.setHours(0, 0, 0, 0);  // Set time to midnight for accurate comparison
+  
+          if (inputDate < todayDate) {
+              // If the entered date is in the past, show a custom error message
+              event.target.setCustomValidity("The date must be today or in the future.");
+          } else {
+              // Clear the error if the date is valid
+              event.target.setCustomValidity("");
+          }
+      }
+  </script>
+
+
+
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Populate the Edit Coupon Modal with coupon data
+    const editButtons = document.querySelectorAll('.edit-coupon-btn');
+    editButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const couponId = this.getAttribute('data-coupon-id');
+        const couponCode = this.getAttribute('data-coupon-code');
+        const couponDiscount = this.getAttribute('data-coupon-discount');
+        const modalEditCardExpiryDate = this.getAttribute('data-coupon-valid-to');
+
+        const modal = document.getElementById('editCouponModal');
+        modal.querySelector('#editCouponCode').value = couponCode;
+        modal.querySelector('#editCouponDiscount').value = couponDiscount;
+        modal.querySelector('#modalEditCardExpiryDate').value = modalEditCardExpiryDate;
+
+        const form = modal.querySelector('form');
+        form.action = `{% url 'cart:coupon_edit' 0 %}`.replace('0', couponId);
+      });
+    });
+  });
+</script>
 
 {%endblock%}

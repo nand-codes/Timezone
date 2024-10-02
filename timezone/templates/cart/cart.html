@@ -123,7 +123,7 @@ $(document).ready(function() {
     $(document).on('click', '.increment-btn', function() {
         var $input = $(this).siblings('.input-number');
         var currentVal = parseInt($input.val());
-        var maxVal = parseInt($input.attr('max')+1);
+        var maxVal = parseInt($input.attr('max'));
 
         if (!isNaN(currentVal) && currentVal < maxVal) {
             $input.val(currentVal);  // Increment the value by 1
@@ -138,7 +138,7 @@ $(document).ready(function() {
         var minVal = parseInt($input.attr('min')-1);
 
         if (!isNaN(currentVal) && currentVal > minVal) {
-            $input.val(currentVal);  // Decrement the value by 1
+            $input.val(currentVal );  // Decrement the value by 1
             $input.trigger('change');    // Trigger the change event to update totals
         }
     });
@@ -158,15 +158,22 @@ $(document).ready(function() {
                 'cart_item_id': cartItemId,
             },
             success: function(response) {
+                // Update the total amount for this row
                 $row.find('.total-amount').text(response.total_amount.toFixed(2));
+                // Update the grand total for the cart
                 calculateGrandTotal();
             },
             error: function(xhr, status, error) {
                 console.error('Error updating cart:', error);
+                // Handle the error response (e.g., insufficient stock)
+                if (xhr.status === 400) {
+                    alert(xhr.responseJSON.error);  // Display the error message
+                }
             }
         });
     });
 });
+
 
 </script>
 {% endblock %}

@@ -1,5 +1,4 @@
-<h3>Proceed with Payment</h3>
-<p>Total Amount: ₹{{ amount|floatformat:2 }}</p>
+<h3 class="button button-primary">Proceed with Payment</h3>
 
 <form id="payment-form" method="POST" action="{% url 'cart:razorpay_success' %}">
     {% csrf_token %}

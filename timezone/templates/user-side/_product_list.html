@@ -1,0 +1,33 @@
+<div class="products mb-3">
+    <div class="row justify-content-center">
+        {% if no_product %}
+            <h3>No products to show</h3>
+        {% else %}
+            {% for i in obj %}
+                <div class="col-6 col-md-4 col-lg-4">
+                    <div class="product product-7 text-center">
+                        <figure class="product-media">
+                            <a href="{% url 'products:single_product' i.id %}">
+                                <img src="{{ i.image.url }}" style="width: 277px; height: 277px;" alt="Product image" class="product-image">
+                            </a>
+                            <div class="product-action">
+                                <a href="#" class="btn-product btn-cart"><span>Add to cart</span></a>
+                            </div>
+                        </figure>
+                        <div class="product-body">
+                            <h3 class="product-title"><a href="{% url 'products:single_product' i.id %}">{{ i.product.name }}</a></h3>
+                            <div class="product-price">
+                                {% if i.product.get_discounted_price != i.product.price %}
+                                    <span style="text-decoration: line-through;">${{ i.product.price }}</span>
+                                    <span style="color: red;">${{ i.product.get_discounted_price }}</span>
+                                {% else %}
+                                    ${{ i.product.price }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>

@@ -98,9 +98,9 @@
                 {% for item in order_item %}
                 <tr>
                   <td class="text-nowrap text-heading">{{item.product.product.name}}</td>
-                  <td>{{item.product.product.price}}</td>
+                  <td>{{item.price}}</td>
                   <td>{{item.quantity}}</td>
-                  <td>{{item.total_price}}</td>
+                  <td>{{ item.item_total_price}}</td>
                 </tr>
                 {% endfor %}
               </tbody>

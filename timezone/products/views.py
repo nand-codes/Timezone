@@ -12,6 +12,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.decorators.cache import never_cache
+from django.template.loader import render_to_string
 
 
 # Create your views here.
@@ -107,7 +108,6 @@ def shop(request):
     filter_category = request.GET.get('category')
     filter_brand = request.GET.get('brand')
 
-    # Initialize the queryset
     obj = Varient.objects.filter(
         status=True, 
         product__status=True, 
@@ -115,15 +115,12 @@ def shop(request):
         product__brand__status=True
     )
 
-    # Apply category filter
     if filter_category:
         obj = obj.filter(product__Category__id=filter_category)
-        obj = obj.order_by(sort_by)
 
-    # Apply brand filter
     if filter_brand:
         obj = obj.filter(product__brand__id=filter_brand)
-        obj = obj.order_by(sort_by)
+        
 
 
 

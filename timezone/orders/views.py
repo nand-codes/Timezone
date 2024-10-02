@@ -48,6 +48,7 @@ def order_details(request, id):
     order = get_object_or_404(Orders, id=id, user=user)
     order_items = OrderItem.objects.filter(order=order)
     wallet , created = Wallet.objects.get_or_create(user=user)
+    address=Orderaddress.objects.get(order=order)
 
     coupon = order.coupon
     discount_amount = order.discounted_amount if coupon else Decimal('0.00')  # Assuming discount_amount is stored in order
@@ -96,9 +97,8 @@ def order_details(request, id):
                     item.save()
 
                 order.status = 'Canceled'
-
                 if order.payment_method == 'Razorpay' or order.payment_method == 'wallet':
-                    refund_amount = order.total_amount 
+                    refund_amount = order.total_amount
                     wallet.balance += Decimal(refund_amount)
                     wallet.save()
 
@@ -133,6 +133,7 @@ def order_details(request, id):
     context = {
         'order': order,
         'order_items': order_items,
+        'address':address,
     }
     return render(request, 'orders/order_details.html', context)
 
@@ -177,20 +178,16 @@ def admin_order_detail_view(request, id):
     remaining_items_total = sum(
             item.price for item in order_items if item.status == 'Pending'
         )
-    print(remaining_items_total)
     if request.method == 'POST':
         new_status = request.POST.get('status')
         return_status = request.POST.get('action')
         item_id = request.POST.get('item_id')
-        
         coupon = order.coupon
         discount_amount = order.discounted_amount if coupon else Decimal('0.00')
-        print(discount_amount,"Discounted amout")
 
         remaining_items_total = sum(
             item.price * item.quantity for item in order_items if item.status == 'Pending'
         )
-        print(remaining_items_total)
         if new_status:
             if new_status == 'Canceled':
                 for item in order_items:
@@ -203,7 +200,7 @@ def admin_order_detail_view(request, id):
                 
                 order.status = 'Canceled'
                 refund_amount = remaining_items_total
-                if order.payment_method in ['Razorpay','wallet']:
+                if order.payment_method in ['Razorpay','wallet'] and order.payment_status == 'Paid':
                     if coupon:
                         refund_amount = (remaining_items_total / (order.total_amount + discount_amount)) * order.total_amount
 
@@ -435,8 +432,8 @@ def invoice(request,id):
     discount=0
     code=order.coupon
     for item in order_item:
-        item.total_price = item.product.product.price * item.quantity
-        grand_total=item.total_price
+        item.item_total_price = item.price * item.quantity
+        grand_total+=item.item_total_price
     if code:
         coupon=Coupon.objects.get(code=code)
         discount=grand_total*coupon.discount / 100
@@ -467,8 +464,8 @@ def generate_pdf(request, order_id):
     discount=0
     code=order.coupon
     for item in order_item:
-        item.total_price = item.product.product.price * item.quantity
-        grand_total=item.total_price
+        item.total_price = item.price * item.quantity
+        grand_total+=item.total_price
     if code:
         coupon=Coupon.objects.get(code=code)
         discount=grand_total*coupon.discount / 100
@@ -509,8 +506,8 @@ def download_invoice(request,order_id):
     discount=0
     code=order.coupon
     for item in order_item:
-        item.total_price = item.product.product.price * item.quantity
-        grand_total=item.total_price
+        item.total_price = item.price * item.quantity
+        grand_total += item.total_price
     if code:
         coupon=Coupon.objects.get(code=code)
         discount=grand_total*coupon.discount / 100

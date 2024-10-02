@@ -13,6 +13,7 @@ from decimal import Decimal
 from django.contrib import messages
 from orders.models import Orders
 from django.views.decorators.cache import never_cache,cache_control
+from user.models import Transaction,Wallet
 
 # Create your views here.
 def is_staff_c(user):
@@ -55,22 +56,19 @@ def cart(request):
     blocked_items = []
 
     for item in cart_items:
-        if item.varient.status and item.varient.product.status and item.varient.product.brand.status:
-            total_amount = Decimal(item.quantity) * Decimal(item.varient.product.price)
-            grand_total += total_amount
-            cart_products.append({
-                'product': item.varient,
-                'quantity': item.quantity,
-                'total_amount': total_amount,
-                'id': item.id
-            })
-        else:
-            blocked_items.append(item.varient)
-            cart_items = cart_items.exclude(varient=item.varient)
-
-    if blocked_items:
-
-        messages.error(request, "Some items in your cart are temporarily blocked .")
+        if not item.varient.status and item.varient.product.status and item.varient.product.brand.status:
+            messages.error(request,f"item {item.varient.product.name} is temporary blocked you cant make purchase please remove item from cart")
+        if item.quantity > item.varient.quantity:
+            messages.error(request,f"Quantity of {item.varient.product.name} is above the stock")
+        
+        total_amount = Decimal(item.quantity) * Decimal(item.varient.product.price)
+        grand_total += total_amount
+        cart_products.append({
+            'product': item.varient,
+            'quantity': item.quantity,
+            'total_amount': total_amount,
+            'id': item.id
+         })
 
     context = {
         'cart_products': cart_products,
@@ -158,6 +156,7 @@ def checkout(request):
     elif blocked_items:
         messages.error(request, "Some items in your cart are temporarily blocked and cannot be ordered.")
     
+    
     elif  cart_products==[]:
         messages.error(request,'cart is empty')
         return render(request,'cart/checkout.html')
@@ -195,6 +194,13 @@ def checkout(request):
         payment_method = request.POST.get('payment_method')
         selected_address = None
 
+        for item in cart:
+            if not item.varient.status and item.varient.product.status and item.varient.product.brand.status:
+                messages.error(request,f"{item.varient.product.name} is blocked please remove from the list and continue")
+                return render(request,'cart/checkout.html')
+            if item.quantity > item.varient.quantity:
+                messages.error(request,f"Quantity of {item.varient.product.name} is not available as you selected.please lower the quantity")
+                return render(request,'cart/checkout.html')
 
         if address_id:
             selected_address = get_object_or_404(Address, id=address_id)
@@ -242,12 +248,13 @@ def checkout(request):
                 )
 
                 for item in cart:
-                    if item.varient.status and item.varient.product.status and item.varient.product.brand.status:
+                    product_price=item.varient.product.get_discounted_price() if item.varient.product.get_discounted_price() else item.varient.product.price
+                    if item.varient.status and item.varient.product.status and item.varient.product.brand.status and item.quantity<=item.varient.quantity:
                         OrderItem.objects.create(
                             order=order,
                             product=item.varient,
                             quantity=item.quantity,
-                            price=item.varient.product.price
+                            price=product_price
                         )
                         item.varient.quantity-= item.quantity
                         item.varient.save()
@@ -293,7 +300,17 @@ def checkout(request):
                     coupon = coupon_code,
                     discounted_amount = discounted_amount
                 )
+                
 
+                Transaction.objects.create(
+                        wallet=wallet,
+                        transaction_type='debit',
+                        transation_purpose='Purchase',
+                        amount=grand_total,
+                        discription=f"order amount #{order.id})"
+                    )
+                wallet.balance-=total_amount
+                wallet.save()
                 Orderaddress.objects.create(
                     order=order,
                     first_name=selected_address.first_name,
@@ -309,13 +326,14 @@ def checkout(request):
                     postcode_zip=selected_address.postcode_zip
                 )
                 for item in cart:
+                    product_price=item.varient.product.get_discounted_price() if item.varient.product.get_discounted_price() else item.varient.product.price
                     if item.varient.status and item.varient.product.status and item.varient.product.brand.status:
                         total_amount = item.quantity * item.varient.product.price
                         OrderItem.objects.create(
                             order=order,
                             product=item.varient,
                             quantity=item.quantity,
-                            price=total_amount
+                            price=product_price
                         )
                         item.varient.quantity -= item.quantity
                         item.varient.save()
@@ -359,13 +377,14 @@ def checkout(request):
                     postcode_zip=selected_address.postcode_zip
                 )
                 for item in cart:
+                    product_price=item.varient.product.get_discounted_price() if item.varient.product.get_discounted_price() else item.varient.product.price
                     if item.varient.status and item.varient.product.status and item.varient.product.brand.status:
                         total_amount = item.quantity * item.varient.product.price
                         OrderItem.objects.create(
                             order=order,
                             product=item.varient,
                             quantity=item.quantity,
-                            price=total_amount
+                            price=product_price
                         )
                         item.varient.quantity -= item.quantity
                         item.varient.save()
@@ -569,6 +588,10 @@ def coupon_management(request):
             valid_to = datetime.strptime(valid_to_str, '%Y-%m-%d')
         except ValueError:
             return HttpResponse("Invalid date format. Please use YYYY-MM-DD format.", status=400)
+        
+        if Coupon.objects.filter(code__icontains=code):
+            messages.error(request,"this coupon already exists")
+            return redirect('cart:coupon_management')
 
         Coupon.objects.create(
             code=code,
@@ -591,6 +614,24 @@ def coupon_status(request,id):
     coupon.active = not coupon.active
     coupon.save()
     return redirect('cart:coupon_management')
+
+def coupon_edit(request,id):
+    coupon=Coupon.objects.get(id=id)
+    if request.method== "POST":
+        code=request.POST.get('coupon_code')
+        discount=request.POST.get('discount')
+        valid_to=request.POST.get('valid_to')
+
+        if Coupon.objects.filter(code=code).exclude(id=id).exists():
+            messages.error(request,'This code already exists')
+            return redirect('cart:coupon_management')
+        else:
+            coupon.code=code
+            coupon.discount=discount
+            coupon.valid_to=valid_to
+            coupon.save()
+            messages.success(request,'Coupon edited successfully')
+            return redirect('cart:coupon_management')
 
 
 

@@ -96,19 +96,22 @@
                     <div class="product-gallery product-gallery-vertical">
                         <div class="row">
                             <figure class="product-main-image">              
-                                <img id="product-zoom" src="{{ obj.image.url }}" alt="product image" class="img-fluid mb-4 rounded-3" style="width: 500px; height: 500px;">
-								<div id="product-zoom-gallery" class="product-image-gallery">
-                                    <a class="product-gallery-item" href="#" data-image="{{ obj.image_1.url }}">
+                                <img id="product-zoom" src="{{ obj.image.url }}" 
+                                    alt="product image" 
+                                    class="img-fluid mb-4 rounded-3" 
+                                    style="width: 500px; height: 500px;"
+                                    data-zoom-image="{{ obj.image.url }}">
+                                <div id="product-zoom-gallery" class="product-image-gallery">
+                                    <a class="product-gallery-item" href="#" data-image="{{ obj.image_1.url }}" data-zoom-image="{{ obj.image_1.url }}">
                                         <img src="{{ obj.image_1.url }}" alt="product side" class="img-fluid" style="width: 100%; max-width: 150px;">
                                     </a>
-                                    <a class="product-gallery-item" href="#" data-image="{{ obj.image_2.url }}">
+                                    <a class="product-gallery-item" href="#" data-image="{{ obj.image_2.url }}" data-zoom-image="{{ obj.image_2.url }}">
                                         <img src="{{ obj.image_2.url }}" alt="product side" class="img-fluid" style="width: 100%; max-width: 150px;">
                                     </a>
-                                    <a class="product-gallery-item" href="#" data-image="{{ obj.image_3.url }}">
+                                    <a class="product-gallery-item" href="#" data-image="{{ obj.image_3.url }}" data-zoom-image="{{ obj.image_3.url }}">
                                         <img src="{{ obj.image_3.url }}" alt="product side" class="img-fluid" style="width: 100%; max-width: 150px;">
                                     </a>
                                 </div>
-                                
                             </figure>
                         </div>
                     </div>
@@ -197,7 +200,7 @@
 
                         </div>
                         <div class="product-details-footer">
-                            <span>Category: {{ product.category }}</span><br>
+                            <span>Category: {{ product.Category }}</span><br>
                             <span>Brand: {{ product.brand }}</span><br>
                             <span>Gender: {{ product.gender }}</span>
                         </div>
@@ -293,7 +296,39 @@
     </div>
 </div>
 {% endblock %}
+<script>$(document).ready(function() {
+    // Initialize elevateZoom on the main product image
+    $("#product-zoom").elevateZoom({
+        zoomType: "lens", // or "inner" for zoom inside the image
+        lensShape: "round", // Shape of the lens (optional)
+        lensSize: 200, // Size of the lens (optional)
+        scrollZoom: true, // Allow zooming using the scroll
+        easing: true
+    });
 
+    // Event listener for clicking on thumbnail images to change the main image
+    $('.product-gallery-item').on('click', function(e) {
+        e.preventDefault(); // Prevent default action of link
+
+        // Get the new image URL from the clicked thumbnail's data-image attribute
+        var newImageSrc = $(this).attr('data-image');
+
+        // Set the new image URL to the main image
+        $('#product-zoom').attr('src', newImageSrc);
+
+        // Update the elevateZoom image source dynamically
+        $('.zoomContainer').remove(); // Remove old zoom container
+        $('#product-zoom').removeData('elevateZoom'); // Remove old zoom data
+        $('#product-zoom').elevateZoom({
+            zoomType: "lens",
+            lensShape: "round",
+            lensSize: 200,
+            scrollZoom: true,
+            easing: true
+        });
+    });
+});
+</script>
 <script>
     $(document).ready(function() {
         // Event listener for clicking on thumbnail images

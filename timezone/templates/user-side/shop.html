@@ -23,8 +23,24 @@
 <link rel="stylesheet" href="{% static 'asset2/css/plugins/nouislider/nouislider.css' %}">
 
 {% endblock %}
+{% block style %}
+<style>
+    .product-media {
+        position: relative;
+        overflow: hidden;
+    }
 
+    .product-media img {
+        transition: transform 0.3s ease;
+        width: 100%;
+        height: auto;
+    }
 
+    .product-media:hover img {
+        transform: scale(1.2);
+    }
+</style>
+{%endblock%}
 
 {% block content %}
 <main class="main">
@@ -32,12 +48,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-9">
+                    <!-- Toolbox for sorting and search -->
                     <div class="toolbox">
                         <div class="toolbox-left">
                             <div class="toolbox-info">
                                 <form method="GET">
                                     <div class="search-container">
-                                        <input type="text" name="search" placeholder="Search...">
+                                        <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search...">
                                         <button type="submit">
                                             <i class="fas fa-search" style="color: tan; background-color: yellow;"></i>
                                         </button>
@@ -45,7 +62,6 @@
                                 </form>
                             </div><!-- End .toolbox-info -->
                         </div><!-- End .toolbox-left -->
-
 
                         <div class="toolbox-left">
                             <div class="toolbox-info">
@@ -55,6 +71,20 @@
 
                         <div class="toolbox-right">
                             <form method="get" id="sortingAndFilterForm" action="{% url 'products:shop' %}">
+                                <!-- Include hidden fields for the current category, brand, color filters -->
+                                {% if request.GET.category %}
+                                    <input type="hidden" name="category" value="{{ request.GET.category }}">
+                                {% endif %}
+                                {% if request.GET.brand %}
+                                    <input type="hidden" name="brand" value="{{ request.GET.brand }}">
+                                {% endif %}
+                                {% if request.GET.color %}
+                                    <input type="hidden" name="color" value="{{ request.GET.color }}">
+                                {% endif %}
+                                {% if request.GET.search %}
+                                    <input type="hidden" name="search" value="{{ request.GET.search }}">
+                                {% endif %}
+                            
                                 <div class="toolbox-sort">
                                     <label for="sortby">Sort by:</label>
                                     <div class="select-custom">
@@ -66,9 +96,8 @@
                                             <option value="-product__name" {% if request.GET.sort_by == "-product__name" %}selected{% endif %}>Alphabetic: Z to A</option>
                                         </select>
                                     </div>
-                                </div><!-- End .toolbox-sort -->
-
-                                
+                                </div>
+                            </form>
                         </div><!-- End .toolbox-right -->
                     </div><!-- End .toolbox -->
 
@@ -76,186 +105,132 @@
                         <div class="row justify-content-center">
                             {% if no_product %}
                             <h3>No products to show</h3>
-                            {%else%}
+                            {% else %}
                             {% for i in obj %}
                             <div class="col-6 col-md-4 col-lg-4">
                                 <div class="product product-7 text-center">
                                     <figure class="product-media">
                                         <a href="{% url 'products:single_product' i.id %}">
-                                            <img src="{{i.image.url}}" style="width: 277px; height: 277px;" alt="Product image" class="product-image">
+                                            <img src="{{ i.image.url }}" style="width: 277px; height: 277px;" alt="Product image" class="product-image">
                                         </a>
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                        </div><!-- End .product-action-vertical -->
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
                                     </figure><!-- End .product-media -->
                                     <div class="product-body">
-                                        <div class="product-cat">
-                                            <a href="#">{{i.product.gender}}</a>
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="{% url 'products:single_product' i.id %}">{{i.product.name}}</a></h3><!-- End .product-title -->
+                                        <h3 class="product-title"><a href="{% url 'products:single_product' i.id %}">{{ i.product.name }}</a></h3><!-- End .product-title -->
                                         <div class="product-price">
                                             {% if i.product.get_discounted_price != i.product.price %}
-                                                <span style="text-decoration: line-through;">${{ i.product.price }}</span>
-                                                <span style="color: red;">${{ i.product.get_discounted_price }}</span>
+                                            <span style="text-decoration: line-through;">${{ i.product.price }}</span>
+                                            <span style="color: red;">${{ i.product.get_discounted_price }}</span>
                                             {% else %}
-                                                ${{ i.product.price }}
+                                            ${{ i.product.price }}
                                             {% endif %}
                                         </div><!-- End .product-price -->
                                     </div><!-- End .product-body -->
                                 </div><!-- End .product -->
                             </div><!-- End .col-sm-6 col-lg-4 -->
                             {% endfor %}
-                            {%endif%}
+                            {% endif %}
                         </div><!-- End .row -->
                     </div><!-- End .products -->
 
                     <nav aria-label="Page navigation">
                         <ul class="pagination justify-content-center">
+                            <!-- Pagination handling -->
                             {% if obj.has_previous %}
                                 <li class="page-item">
-                                    <a class="page-link page-link-prev" href="?page={{ obj.previous_page_number }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% else %}&sort_by=-product__created_at{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Previous">
+                                    <a class="page-link" href="?page={{ obj.previous_page_number }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Previous">
                                         <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
                                     </a>
                                 </li>
                             {% else %}
                                 <li class="page-item disabled">
-                                    <a class="page-link page-link-prev" href="#" aria-label="Previous" tabindex="-1" aria-disabled="true">
+                                    <a class="page-link" href="#" aria-label="Previous" tabindex="-1" aria-disabled="true">
                                         <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
                                     </a>
                                 </li>
                             {% endif %}
-                    
+
+                            <!-- Page numbers -->
                             {% for num in obj.paginator.page_range %}
                                 {% if obj.number == num %}
-                                    <li class="page-item active" aria-current="page">
-                                        <span class="page-link">{{ num }}</span>
-                                    </li>
+                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                                 {% else %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% else %}&sort_by=-product__created_at{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+                                        <a class="page-link" href="?page={{ num }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
                                     </li>
                                 {% endif %}
                             {% endfor %}
-                    
+
+                            <!-- Next page handling -->
                             {% if obj.has_next %}
                                 <li class="page-item">
-                                    <a class="page-link page-link-next" href="?page={{ obj.next_page_number }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% else %}&sort_by=-product__created_at{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Next">
+                                    <a class="page-link" href="?page={{ obj.next_page_number }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Next">
                                         Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
                                     </a>
                                 </li>
                             {% else %}
                                 <li class="page-item disabled">
-                                    <a class="page-link page-link-next" href="#" aria-label="Next" tabindex="-1" aria-disabled="true">
+                                    <a class="page-link" href="#" aria-label="Next" tabindex="-1" aria-disabled="true">
                                         Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
                                     </a>
                                 </li>
                             {% endif %}
                         </ul>
                     </nav>
-                    
                 </div><!-- End .col-lg-9 -->
 
+                <!-- Sidebar for filters -->
                 <aside class="col-lg-3 order-lg-first">
                     <div class="sidebar sidebar-shop">
+                        <!-- Clean All filters -->
                         <div class="widget widget-clean">
                             <label>Filters:</label>
                             <a href="{% url 'products:shop' %}" class="sidebar-filter-clear">Clean All</a>
                         </div><!-- End .widget widget-clean -->
 
+                        <!-- Category Filter -->
                         <div class="widget widget-collapsible">
                             <h3 class="widget-title">
-                                <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="false" aria-controls="widget-1">
+                                <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
                                     Category
                                 </a>
                             </h3><!-- End .widget-title -->
-                        
-                            <div class="collapse" id="widget-1">
+
+                            <div class="collapse show" id="widget-1">
                                 <div class="widget-body">
-                                    <div class="filter-items filter-items-count">
-                                        {% for category in categories %}
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input class="custom-control-input" type="checkbox" name="category" value="{{ category.id }}" id="category-{{ category.id }}" {% if category.id == category_filter %}checked{% endif %} onchange="document.getElementById('sortingAndFilterForm').submit()">
-                                                <label class="custom-control-label" for="category-{{ category.id }}">{{ category.type }}</label>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div><!-- End .filter-items -->
+                                    <form method="get" id="categoryFilterForm" action="{% url 'products:shop' %}">
+                                        <input type="hidden" name="search" value="{{ request.GET.search }}">
+                                        <ul class="cat-list">
+                                            {% for category in categories %}
+                                            <li><a href="?category={{ category.id }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ category.type }}</a></li>
+                                            {% endfor %}
+                                        </ul><!-- End .cat-list -->
+                                    </form>
                                 </div><!-- End .widget-body -->
                             </div><!-- End .collapse -->
                         </div><!-- End .widget -->
-                        
-                        
+
+                        <!-- Brand Filter -->
                         <div class="widget widget-collapsible">
                             <h3 class="widget-title">
-                                <a data-toggle="collapse" href="#widget-4" role="button" aria-expanded="false" aria-controls="widget-4">
+                                <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true" aria-controls="widget-2">
                                     Brand
                                 </a>
                             </h3><!-- End .widget-title -->
-                        
-                            <div class="collapse" id="widget-4">
+
+                            <div class="collapse show" id="widget-2">
                                 <div class="widget-body">
-                                    <div class="filter-items">
-                                        <div class="filter-item">
-                                            {% for brand in brands %}
-                                            <div class="custom-control custom-checkbox">
-                                                <input class="custom-control-input" type="checkbox" name="brand" value="{{ brand.id }}" id="brand-{{ brand.id }}" {% if brand.id == brand_filter %}checked{% endif %} onchange="document.getElementById('sortingAndFilterForm').submit()">
-                                                <label class="custom-control-label" for="brand-{{ brand.id }}">{{ brand.name }}</label>
-                                            </div><!-- End .custom-checkbox -->
-                                            {% endfor %}
-                                        </div><!-- End .filter-item -->
-                                    </div><!-- End .filter-items -->
+                                    <ul class="cat-list">
+                                        {% for brand in brands %}
+                                        <li><a href="?brand={{ brand.id }}{% if request.GET.sort_by %}&sort_by={{ request.GET.sort_by }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ brand.name }}</a></li>
+                                        {% endfor %}
+                                    </ul><!-- End .cat-list -->
                                 </div><!-- End .widget-body -->
                             </div><!-- End .collapse -->
                         </div><!-- End .widget -->
-                        
                     </div><!-- End .sidebar sidebar-shop -->
                 </aside><!-- End .col-lg-3 -->
             </div><!-- End .row -->
         </div><!-- End .container -->
     </div><!-- End .page-content -->
 </main><!-- End .main -->
-</form>
-
-
-
-<script>
-function applyColorFilter(color) {
-    const form = document.getElementById('sortingAndFilterForm');
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    // Set or update the color parameter
-    urlParams.set('color', color);
-    
-    // Update the form action with the new URL parameters
-    form.action = `${window.location.pathname}?${urlParams}`;
-    
-    // Submit the form
-    form.submit();
-}
-</script>
-
-
-
 {% endblock %}
-
-{% block scripts %}
-<script src="{% static 'assets2/js/jquery.min.js' %}"></script>
-<script src="{% static 'assets2/js/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'assets2/js/jquery.hoverIntent.min.js' %}"></script>
-<script src="{% static 'assets2/js/jquery.waypoints.min.js' %}"></script>
-<script src="{% static 'assets2/js/superfish.min.js' %}"></script>
-<script src="{% static 'assets2/js/owl.carousel.min.js' %}"></script>
-<script src="{% static 'assets2/js/wNumb.js' %}"></script>
-<script src="{% static 'assets2/js/bootstrap-input-spinner.js' %}"></script>
-<script src="{% static 'assets2/js/jquery.magnific-popup.min.js' %}"></script>
-<script src="{% static 'assets2/js/nouislider.min.js' %}"></script>
-<!-- Main JS File -->
-<script src="{% static 'assets2/js/main.js' %}"></script>
-
-{%endblock%}
