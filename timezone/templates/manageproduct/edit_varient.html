@@ -6,7 +6,7 @@
       <h5 class="card-title mb-0">Variants</h5>
     </div>
     <div class="card-body">
-      <form method="post" class="form-repeater">
+      <form method="post" class="form-repeater" enctype="multipart/form-data">
         {% csrf_token %}
         <div data-repeater-list="group-a">
           <div data-repeater-item="">
@@ -15,53 +15,44 @@
                 <div class="form-floating form-floating-outline">
                   <input type="number" id="form-repeater-1-2" class="form-control" 
                   placeholder="Enter Quantity" name="quantity" 
-                  min="1" step="1" value="{{obj.quantity}}" required  >
-                  <label for="form-repeater-1-2" >{{obj.quantity}}</label>
+                  min="1" step="1" value="{{ obj.quantity }}" required>
+                  <label for="form-repeater-1-2">{{ obj.quantity }}</label>
                 </div>
               </div>
-                <div class="card-header d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0 card-title">Product Image</h5>
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 card-title">Product Image</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <img src="{{ obj.image.url }}" width="60px" height="60px">
+                  <label for="image" class="form-label">Update image</label>
+                  <input type="file" id="fileInput" name="image" accept="image/png, image/jpeg, image/jpg, image/gif">
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                      <img src="{{obj.image.url}}" width="60px" height="60px">
-                        <label for="image" class="form-label">Update image</label>
-                        <input type="file" id="fileInput" value="{{obj.image.url}}" name="image" accept="image/png, image/jpeg, image/jpg, image/gif">
-                        </div>
-
-                        <div class="mb-3">
-                          <img src="{{obj.image_1.url}}" width="60px" height="60px">
-                            <label for="image" class="form-label">Update image</label>
-                            <input type="file" id="fileInput" value="{{obj.image.url}}" name="image_1" accept="image/png, image/jpeg, image/jpg, image/gif">
-                        </div>
-
-
-                        <div class="mb-3">
-                          <img src="{{obj.image_2.url}}" width="60px" height="60px">
-                            <label for="image" class="form-label">Update image</label>
-                            <input type="file" id="fileInput" value="{{obj.image.url}}" name="image_2" accept="image/png, image/jpeg, image/jpg, image/gif">
-                        </div>
-
-
-                        
-                        <div class="mb-3">
-                          <img src="{{obj.image_3.url}}" width="60px" height="60px">
-                            <label for="image" class="form-label">Update image</label>
-                            <input type="file" id="fileInput" value="{{obj.image.url}}" name="image_3" accept="image/png, image/jpeg, image/jpg, image/gif">
-                        </div>
-
-
-
-                
-
-
+      
+                <div class="mb-3">
+                  <img src="{{ obj.image_1.url }}" width="60px" height="60px">
+                  <label for="image_1" class="form-label">Update image</label>
+                  <input type="file" id="fileInput" name="image_1" accept="image/*">
+                </div>
+      
+                <div class="mb-3">
+                  <img src="{{ obj.image_2.url }}" width="60px" height="60px">
+                  <label for="image_2" class="form-label">Update image</label>
+                  <input type="file" id="fileInput" name="image_2" accept="image/*">
+                </div>
+      
+                <div class="mb-3">
+                  <img src="{{ obj.image_3.url }}" width="60px" height="60px">
+                  <label for="image_3" class="form-label">Update image</label>
+                  <input type="file" id="fileInput" name="image_3" accept="image/*">
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div>
           <button type="submit" class="btn btn-primary waves-effect waves-light" data-repeater-create="">
-            <i class="ri-add-line ri-16px me-1_5"></i>
-            Add Varient
+            <i class="ri-add-line ri-16px me-1_5"></i> Add Varient
           </button>
         </div>
       </form>
