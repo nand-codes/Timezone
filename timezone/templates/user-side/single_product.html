@@ -12,77 +12,84 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
 
-{% block css %}
-    <style>
-        .product-main-image {
-            position: relative;
-            overflow: hidden;
-        }
+{% block style %}
+    
+        <style>
+    /* Product main image container */
+    .product-main-image {
+        position: relative;
+        overflow: hidden; /* Hide overflow so the image stays within the container */
+    }
 
-        #product-zoom {
-            transition: transform 0.9s ease;
-        }
+    /* Zoom effect on the product image */
+    #product-zoom {
+        transition: transform 0.5s ease-in-out; /* Smooth zoom transition */
+        transform-origin: center center; /* Ensure the zoom occurs from the center */
+    }
 
-        .product-main-image:hover #product-zoom {
-            transform: scale(1.2);
-        }
+    /* Apply the zoom when hovering over the image container */
+    .product-main-image:hover #product-zoom {
+        transform: scale(1.2); /* Zoom level: Increase scale to 1.2 */
+    }
 
-        .variant-image {
-            cursor: pointer;
-        }
+    .variant-image {
+        cursor: pointer;
+    }
 
-        .review-content {
-            margin-top: 1rem;
-        }
+    .review-content {
+        margin-top: 1rem;
+    }
 
-        .review-action a {
-            margin-right: 10px;
-        }
-        
-        /* General button styling */
-.btn-wishlist {
-    background-color: #f8f9fa !important; /* Light gray background */
-    color: #ff4500 !important; /* Orange-red text color */
-    border: 2px solid #ff4500; /* Orange-red border */
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 25px; /* Rounded corners */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease; /* Smooth transitions */
-    text-decoration: none; /* Remove underline from links */
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
+    .review-action a {
+        margin-right: 10px;
+    }
 
-/* Wishlist icon styling */
-.btn-wishlist i {
-    margin-right: 8px; /* Space between icon and text */
-    font-size: 18px;
-    transition: transform 0.3s ease; /* Smooth icon animation */
-}
+    /* General button styling */
+    .btn-wishlist {
+        background-color: #f8f9fa !important; /* Light gray background */
+        color: #ff4500 !important; /* Orange-red text color */
+        border: 2px solid #ff4500; /* Orange-red border */
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 25px; /* Rounded corners */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease; /* Smooth transitions */
+        text-decoration: none; /* Remove underline from links */
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
 
-/* Hover effects */
-.btn-wishlist:hover {
-    background-color: #ff4500; /* Orange-red background on hover */
-    color: #ffffff; /* White text color on hover */
-    transform: translateY(-2px); /* Lift the button on hover */
-}
+    /* Wishlist icon styling */
+    .btn-wishlist i {
+        margin-right: 8px; /* Space between icon and text */
+        font-size: 18px;
+        transition: transform 0.3s ease; /* Smooth icon animation */
+    }
 
-.btn-wishlist:hover i {
-    transform: scale(1.2); /* Slightly increase icon size on hover */
-}
+    /* Hover effects */
+    .btn-wishlist:hover {
+        background-color: #ff4500; /* Orange-red background on hover */
+        color: #ffffff; /* White text color on hover */
+        transform: translateY(-2px); /* Lift the button on hover */
+    }
 
-/* Active state (when clicked) */
-.btn-wishlist:active {
-    background-color: #e03e00; /* Darker orange-red background on click */
-    transform: translateY(0); /* Reset lift effect */
-    box-shadow: none; /* Remove shadow on click */
-}
+    .btn-wishlist:hover i {
+        transform: scale(1.2); /* Slightly increase icon size on hover */
+    }
+
+    /* Active state (when clicked) */
+    .btn-wishlist:active {
+        background-color: #e03e00; /* Darker orange-red background on click */
+        transform: translateY(0); /* Reset lift effect */
+        box-shadow: none; /* Remove shadow on click */
+    }
+</style>
 
 
-    </style>
+
+    
 {% endblock %}
 
 {% block content %}

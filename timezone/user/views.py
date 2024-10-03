@@ -6,6 +6,7 @@ from django.core.paginator import Paginator,PageNotAnInteger, EmptyPage
 from cart.models import Coupon
 from django.utils import timezone
 from django.contrib import messages
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
 
@@ -31,6 +32,8 @@ def block(request, id):
     user.is_active = not user.is_active
     user.save()
     return redirect('user:users')
+
+@never_cache
 @login_required(login_url='login:login')
 def profile(request):
     id=request.user.id
