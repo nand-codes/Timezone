@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'dj_rest_auth',
     'dj_rest_auth.registration',
+    'corsheaders'
 ]
 
 
@@ -64,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 
@@ -114,6 +116,12 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
+
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -146,7 +154,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
